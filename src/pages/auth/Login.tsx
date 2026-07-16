@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { LogIn, HeartHandshake } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../App';
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login } = useAuthContext();
   const navigate = useNavigate();
   const [email, setEmail] = useState('shelter@kaomai.test');
   const [password, setPassword] = useState('password');
@@ -25,7 +25,10 @@ const Login = () => {
       return;
     }
 
-    navigate(email.includes('employer') ? '/employer/dashboard' : '/shelter/dashboard');
+    const redirectTo = (user as { role?: string })?.role === 'employer'
+      ? '/employer/dashboard'
+      : '/shelter/dashboard';
+    navigate(redirectTo);
   };
 
   return (

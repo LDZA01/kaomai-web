@@ -12,7 +12,7 @@ const toProfile = (sessionUser: { id: string; email?: string; user_metadata?: Re
 });
 
 const useAuth = () => {
-  const [user, setUser] = useState<UserProfile | null>(mockUsers[0]);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

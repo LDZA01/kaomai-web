@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { UserPlus, Home, Building2, HeartHandshake } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuthContext } from '../../App';
 import type { UserRole } from '../../types';
 
 const Register = () => {
-  const { signUp } = useAuth();
+  const { signUp } = useAuthContext();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
