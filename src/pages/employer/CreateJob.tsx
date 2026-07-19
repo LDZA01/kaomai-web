@@ -1,50 +1,47 @@
 import React, { useState } from 'react';
-import { Save, Briefcase } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Save, Briefcase, Loader2 } from 'lucide-react';
 import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import Input from '../../components/ui/Input';
-import { isSupabaseConfigured, supabase } from '../../lib/supabase';
+import { createJob } from '../../lib/db';
+import { useAuthContext } from '../../App';
 
 const CreateJob = () => {
+  const { org } = useAuthContext();
+  const navigate = useNavigate();
+  const employerId = org.employer?.id ?? '';
+
   const [jobTitle, setJobTitle] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [requiredSkills, setRequiredSkills] = useState('');
   const [location, setLocation] = useState('');
   const [dailyWage, setDailyWage] = useState('');
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setError('');
     setLoading(true);
-    setMessage('');
 
-    const payload = {
-      employer_id: 'employer-1',
-      title: jobTitle,
-      job_description: jobDescription,
-      required_skills: requiredSkills.split(',').map((skill) => skill.trim()).filter(Boolean),
-      location,
-      daily_wage: Number(dailyWage),
-      status: 'open',
-    };
+    try {
+      await createJob({
+        employerId,
+        title: jobTitle,
+        description: jobDescription,
+        requiredSkills: requiredSkills.split(',').map((s) => s.trim()).filter(Boolean),
+        location,
+        dailyWage: Number(dailyWage),
+        status: 'open',
+      });
 
-    if (isSupabaseConfigured) {
-      const { error } = await supabase.from('jobs').insert(payload);
-      if (error) {
-        setMessage(`เกิดข้อผิดพลาด: ${error.message}`);
-        setLoading(false);
-        return;
-      }
+      // Redirect to matches page after successful creation
+      navigate('/employer/matches');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'ลงประกาศงานไม่สำเร็จ กรุณาลองใหม่');
+      setLoading(false);
     }
-
-    setMessage(isSupabaseConfigured ? 'ลงประกาศงานสำเร็จแล้ว!' : 'ลงประกาศงานสำเร็จ (ข้อมูล Mock)');
-    setJobTitle('');
-    setJobDescription('');
-    setRequiredSkills('');
-    setLocation('');
-    setDailyWage('');
-    setLoading(false);
   };
 
   return (
@@ -61,18 +58,15 @@ const CreateJob = () => {
           </div>
           <div>
             <h2 className="font-bold text-slate-900">ข้อมูลตำแหน่งงาน</h2>
-            <p className="text-xs text-slate-400">ข้อมูลที่กรอกจะถูกใช้จับคู่กับผู้พักพิงที่เหมาะสม</p>
+            <p className="text-xs text-slate-400">
+              {org.employer?.businessName ?? ''} — ข้อมูลที่กรอกจะถูกใช้จับคู่กับคนไร้บ้านที่มีทักษะเหมาะสม
+            </p>
           </div>
         </div>
 
-        {message && (
-          <div className={`mb-5 flex items-center gap-2 rounded-xl p-3 text-sm ${
-            message.includes('ผิดพลาด')
-              ? 'bg-red-50 border border-red-100 text-red-700'
-              : 'bg-emerald-50 border border-emerald-100 text-emerald-800'
-          }`}>
-            <span>{message.includes('ผิดพลาด') ? '⚠' : '✓'}</span>
-            {message}
+        {error && (
+          <div className="mb-5 flex items-center gap-2 rounded-xl bg-red-50 border border-red-100 p-3 text-sm text-red-700">
+            <span>⚠</span> {error}
           </div>
         )}
 
@@ -124,13 +118,16 @@ const CreateJob = () => {
                   onChange={(e) => setDailyWage(e.target.value)}
                   placeholder="500"
                   required
+                  min="1"
                   className="w-full rounded-xl border border-slate-200 bg-white pl-8 pr-4 py-2.5 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
             </div>
           </div>
           <Button type="submit" disabled={loading} size="large">
-            <Save size={18} aria-hidden />
+            {loading
+              ? <Loader2 size={18} className="animate-spin" aria-hidden />
+              : <Save size={18} aria-hidden />}
             {loading ? 'กำลังบันทึก...' : 'ลงประกาศงาน'}
           </Button>
         </form>

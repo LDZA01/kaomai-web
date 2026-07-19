@@ -1,22 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PlusCircle, UsersRound, MapPin, ArrowRight } from 'lucide-react';
+import { PlusCircle, UsersRound, MapPin, ArrowRight, Loader2 } from 'lucide-react';
 import Card from '../../components/ui/Card';
-import { mockEmployers, mockResidents } from '../../data/mockData';
+import { getAllResidents } from '../../lib/db';
 import { rankResidentsForJob } from '../../lib/matching';
+import { useAuthContext } from '../../App';
 import useRealtimeJobs from '../../hooks/useRealtimeJobs';
+import type { Resident } from '../../types';
 
 const EmployerDashboard = () => {
-  const { jobs, loading } = useRealtimeJobs();
-  const employer = mockEmployers[0];
+  const { org } = useAuthContext();
+  const employer = org.employer;
+  const employerId = employer?.id ?? '';
+
+  const { jobs, loading: jobsLoading } = useRealtimeJobs(employerId);
+
+  const [allResidents, setAllResidents] = useState<Resident[]>([]);
+  const [residentsLoading, setResidentsLoading] = useState(true);
+
+  useEffect(() => {
+    getAllResidents()
+      .then(setAllResidents)
+      .catch(console.error)
+      .finally(() => setResidentsLoading(false));
+  }, []);
 
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Hero Banner */}
-      <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-700 via-emerald-600 to-teal-700 p-7 text-white shadow-lg shadow-emerald-900/20">
+      <section
+        className="relative overflow-hidden rounded-2xl p-7 text-white shadow-lg"
+        style={{ background: 'linear-gradient(135deg, #0d4f47 0%, #0d9488 60%, #14b8a6 100%)' }}
+      >
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-white to-transparent" />
-        <p className="relative text-sm font-bold uppercase tracking-widest text-emerald-200">
-          {employer.businessName}
+        <p className="relative text-sm font-bold uppercase tracking-widest" style={{ color: '#99f6e4' }}>
+          {employer?.businessName ?? 'ผู้จ้างงาน'}
         </p>
         <h1 className="relative mt-2 text-3xl font-extrabold tracking-tight">แดชบอร์ดผู้จ้างงาน</h1>
         <p className="relative mt-2 max-w-2xl text-base text-emerald-100 leading-relaxed">
@@ -28,31 +46,36 @@ const EmployerDashboard = () => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card className="flex flex-col">
           <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-              <PlusCircle className="text-blue-600" size={20} aria-hidden />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: '#ddeaf6' }}>
+              <PlusCircle size={20} style={{ color: '#173A5E' }} aria-hidden />
             </div>
             <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">ประกาศงาน</span>
           </div>
-          <p className="mt-3 text-4xl font-extrabold text-slate-900">{loading ? '...' : jobs.length}</p>
+          <p className="mt-3 text-4xl font-extrabold text-slate-900">
+            {jobsLoading ? <Loader2 size={28} className="animate-spin" /> : jobs.length}
+          </p>
           <p className="mt-1 text-sm text-slate-500">ประกาศงานที่เปิดรับอยู่</p>
         </Card>
 
         <Card className="flex flex-col">
           <div className="flex items-center justify-between">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50">
-              <UsersRound className="text-emerald-600" size={20} aria-hidden />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: '#f0fdfa' }}>
+              <UsersRound size={20} style={{ color: '#0d9488' }} aria-hidden />
             </div>
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">ผู้พักพิง</span>
+            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">คนไร้บ้าน</span>
           </div>
-          <p className="mt-3 text-4xl font-extrabold text-slate-900">{mockResidents.length}</p>
-          <p className="mt-1 text-sm text-slate-500">โปรไฟล์พร้อมรับงาน</p>
+          <p className="mt-3 text-4xl font-extrabold text-slate-900">
+            {residentsLoading ? <Loader2 size={28} className="animate-spin" /> : allResidents.length}
+          </p>
+          <p className="mt-1 text-sm text-slate-500">โปรไฟล์พร้อมรับงาน (ทุกศูนย์)</p>
         </Card>
 
         <Card>
           <p className="text-sm font-bold text-slate-700">ขั้นตอนถัดไป</p>
           <p className="mt-1 text-xs text-slate-400">ลงประกาศงานเพื่อเริ่มจับคู่กับผู้สมัคร</p>
           <Link
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-blue-200 hover:from-blue-700 hover:to-blue-800 transition-all"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white shadow-md transition-all"
+            style={{ background: 'linear-gradient(135deg, #173A5E, #1e4d7b)', boxShadow: '0 4px 12px rgba(23,58,94,0.2)' }}
             to="/employer/create-job"
           >
             <PlusCircle size={16} />
@@ -65,53 +88,77 @@ const EmployerDashboard = () => {
       <section>
         <h2 className="mb-4 text-lg font-bold text-slate-700">
           ประกาศงานของคุณ
-          {!loading && (
-            <span className="ml-2 rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-bold text-blue-700">{jobs.length}</span>
+          {!jobsLoading && (
+            <span className="ml-2 rounded-full bg-blue-100 px-2.5 py-0.5 text-sm font-bold text-blue-700">
+              {jobs.length}
+            </span>
           )}
         </h2>
-        <div className="grid gap-4 lg:grid-cols-2">
-          {jobs.map((job) => {
-            const topMatches = rankResidentsForJob(job, mockResidents).slice(0, 2);
-            return (
-              <Card key={job.id} skills={job.requiredSkills}>
-                <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
-                <p className="mt-1 text-sm text-slate-500 leading-relaxed">{job.description}</p>
-                <div className="mt-2 flex items-center gap-4 text-sm text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <MapPin size={13} className="text-slate-400" />
-                    {job.location}
-                  </span>
-                  <span className="font-bold text-emerald-700">฿{job.dailyWage.toLocaleString()} / วัน</span>
-                </div>
 
-                <div className="mt-4">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">ผู้สมัครที่เหมาะสมที่สุด</p>
-                  <div className="space-y-2">
-                    {topMatches.map((match) => (
-                      <div
-                        key={match.resident.id}
-                        className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-2.5"
-                      >
-                        <div className="flex items-center gap-2">
-                          <img src={match.resident.photoUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
-                          <span className="text-sm font-semibold text-slate-700">{match.resident.name}</span>
-                        </div>
-                        <span className="text-sm font-extrabold text-emerald-600">{match.score}%</span>
-                      </div>
-                    ))}
+        {jobsLoading ? (
+          <div className="flex items-center justify-center py-16 text-slate-400">
+            <Loader2 size={28} className="animate-spin mr-2" /> กำลังโหลด...
+          </div>
+        ) : jobs.length === 0 ? (
+          <div className="rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center text-slate-400">
+            ยังไม่มีประกาศงาน —{' '}
+            <Link to="/employer/create-job" className="font-bold text-teal-600 hover:underline">
+              ลงประกาศแรกของคุณ
+            </Link>
+          </div>
+        ) : (
+          <div className="grid gap-4 lg:grid-cols-2">
+            {jobs.map((job) => {
+              const topMatches = rankResidentsForJob(job, allResidents).slice(0, 2);
+              return (
+                <Card key={job.id} skills={job.requiredSkills}>
+                  <h3 className="text-lg font-bold text-slate-900">{job.title}</h3>
+                  <p className="mt-1 text-sm text-slate-500 leading-relaxed">{job.description}</p>
+                  <div className="mt-2 flex items-center gap-4 text-sm text-slate-500">
+                    <span className="flex items-center gap-1">
+                      <MapPin size={13} className="text-slate-400" />
+                      {job.location}
+                    </span>
+                    <span className="font-bold text-emerald-700">฿{job.dailyWage.toLocaleString()} / วัน</span>
                   </div>
-                </div>
 
-                <Link
-                  to="/employer/matches"
-                  className="mt-4 flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  ดูผู้สมัครทั้งหมด <ArrowRight size={14} />
-                </Link>
-              </Card>
-            );
-          })}
-        </div>
+                  {topMatches.length > 0 && (
+                    <div className="mt-4">
+                      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">ผู้สมัครที่เหมาะสมที่สุด</p>
+                      <div className="space-y-2">
+                        {topMatches.map((match) => (
+                          <div
+                            key={match.resident.id}
+                            className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-2.5"
+                          >
+                            <div className="flex items-center gap-2">
+                              {match.resident.photoUrl ? (
+                                <img src={match.resident.photoUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
+                              ) : (
+                                <div className="h-7 w-7 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
+                                  {match.resident.name[0]}
+                                </div>
+                              )}
+                              <span className="text-sm font-semibold text-slate-700">{match.resident.name}</span>
+                            </div>
+                            <span className="text-sm font-extrabold text-emerald-600">{match.score}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <Link
+                    to="/employer/matches"
+                    className="mt-4 flex items-center gap-1 text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    ดูผู้สมัครทั้งหมด <ArrowRight size={14} />
+                  </Link>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </section>
     </div>
   );

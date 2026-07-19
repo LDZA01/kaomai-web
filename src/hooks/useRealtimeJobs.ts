@@ -1,53 +1,51 @@
 import { useEffect, useState } from 'react';
-import { mockJobs } from '../data/mockData';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { getJobs } from '../lib/db';
 import type { Job } from '../types';
 
-const mapJob = (job: Record<string, any>): Job => ({
-  id: job.id,
-  employerId: job.employer_id,
-  title: job.title,
-  description: job.job_description,
-  requiredSkills: job.required_skills || [],
-  location: job.location,
-  dailyWage: Number(job.daily_wage),
-  status: job.status || 'open',
-});
-
-const useRealtimeJobs = () => {
-  const [jobs, setJobs] = useState<Job[]>(mockJobs);
+/**
+ * Fetches jobs for a specific employer.
+ * Falls back to mock data when Supabase is not configured (via db.ts).
+ */
+const useRealtimeJobs = (employerId: string) => {
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
+    if (!employerId) {
       setLoading(false);
       return;
     }
 
-    const fetchJobs = async () => {
-      const { data, error } = await supabase.from('jobs').select('*');
+    let cancelled = false;
 
-      if (error) {
-        console.error('Error fetching jobs:', error);
-      } else if (data) {
-        setJobs(data.map(mapJob));
+    const fetchJobs = async () => {
+      setLoading(true);
+      try {
+        const data = await getJobs(employerId);
+        if (!cancelled) setJobs(data);
+      } catch (err) {
+        console.error('[useRealtimeJobs] fetch error:', err);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchJobs();
 
-    const channel = supabase
-      .channel('jobs-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'jobs' }, fetchJobs)
-      .subscribe();
+    return () => { cancelled = true; };
+  }, [employerId]);
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
+  const refetch = async () => {
+    if (!employerId) return;
+    try {
+      const data = await getJobs(employerId);
+      setJobs(data);
+    } catch (err) {
+      console.error('[useRealtimeJobs] refetch error:', err);
+    }
+  };
 
-  return { jobs, loading };
+  return { jobs, loading, refetch };
 };
 
 export default useRealtimeJobs;

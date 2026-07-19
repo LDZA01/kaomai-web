@@ -11,14 +11,22 @@ import Matching from './pages/shelter/Matching';
 import Residents from './pages/shelter/Residents';
 import ShelterDashboard from './pages/shelter/ShelterDashboard';
 import useAuth from './hooks/useAuth';
+import type { OrgInfo } from './hooks/useAuth';
 import type { UserProfile } from './types';
 
 // ─── Auth Context ────────────────────────────────────────────────────────────
 interface AuthContextValue {
   user: UserProfile | null;
+  org: OrgInfo;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ user: unknown; error: null | { message: string } }>;
-  signUp: (email: string, password: string, role: UserProfile['role'], displayName: string) => Promise<{ user: unknown; error: null | { message: string } }>;
+  signUp: (
+    email: string,
+    password: string,
+    role: UserProfile['role'],
+    displayName: string,
+    orgInfo?: { shelterName?: string; shelterAddress?: string; businessName?: string; industry?: string },
+  ) => Promise<{ user: unknown; error: null | { message: string } }>;
   signOut: () => Promise<void>;
 }
 

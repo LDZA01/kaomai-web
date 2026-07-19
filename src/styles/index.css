@@ -4,39 +4,46 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Design Tokens: derived from logo navy #173A5E ─────────────────────── */
+:root {
+  --navy-950: #0d2236;
+  --navy-900: #173A5E;   /* logo primary */
+  --navy-800: #1e4d7b;
+  --navy-700: #245d94;
+  --navy-600: #2b6fb0;
+  --navy-100: #ddeaf6;
+  --navy-50:  #f0f6fc;
+
+  --teal-600: #0d9488;
+  --teal-500: #14b8a6;
+  --teal-400: #2dd4bf;
+  --teal-100: #ccfbf1;
+  --teal-50:  #f0fdfa;
+
+  --surface:  #f8fafc;   /* page bg — barely off-white */
+  --card:     #ffffff;
+}
+
 html {
   font-family: 'Sarabun', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  background-color: var(--surface);
+  @apply text-slate-800 antialiased;
 }
 
-button,
-a,
-input,
-select,
-textarea {
+button, a, input, select, textarea {
   -webkit-tap-highlight-color: transparent;
   font-family: 'Sarabun', ui-sans-serif, system-ui, sans-serif;
 }
 
+/* ── Animations ─────────────────────────────────────────────────────────── */
 @layer utilities {
-  .animate-fade-in {
-    animation: fadeIn 0.4s ease-in-out;
-  }
-
-  .animate-slide-up {
-    animation: slideUp 0.35s ease-out;
-  }
+  .animate-fade-in  { animation: fadeIn  0.4s ease-in-out; }
+  .animate-slide-up { animation: slideUp 0.35s ease-out;   }
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes fadeIn  { from { opacity: 0; }                          to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}

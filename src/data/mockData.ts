@@ -3,7 +3,7 @@ import type { Employer, Job, JobMatch, Resident, Shelter, UserProfile } from '..
 export const mockShelters: Shelter[] = [
   {
     id: 'shelter-1',
-    name: 'ศูนย์พักพิงบ้านใหม่',
+    name: 'ศูนย์คนไร้บ้านบ้านใหม่',
     address: 'ปทุมวัน, กรุงเทพมหานคร',
     contactInfo: 'coordination@baanmai.org',
   },
@@ -27,13 +27,13 @@ export const mockEmployers: Employer[] = [
 export const mockUsers: UserProfile[] = [
   {
     id: 'user-shelter',
-    email: 'shelter@kaomai.test',
+    email: 'shelter@kaowmai.test',
     role: 'shelter',
     displayName: 'ผู้ประสานงานบ้านใหม่',
   },
   {
     id: 'user-employer',
-    email: 'employer@kaomai.test',
+    email: 'employer@kaowmai.test',
     role: 'employer',
     displayName: 'ฝ่ายสรรหาครัวเขียว',
   },
