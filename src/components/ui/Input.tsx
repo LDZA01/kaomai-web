@@ -4,11 +4,11 @@ import { CheckCircle2, AlertCircle } from 'lucide-react';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   hint?: string;
-  error?: string;      // inline error message
-  success?: boolean;   // show green border + checkmark
+  error?: string;
+  success?: boolean;
 }
 
-const Input: React.FC<InputProps> = ({ label, hint, error, success, id, ...props }) => {
+const Input: React.FC<InputProps> = ({ label, hint, error, success, id, className = '', ...props }) => {
   const inputId = id || label;
 
   const borderClass = error
@@ -20,7 +20,7 @@ const Input: React.FC<InputProps> = ({ label, hint, error, success, id, ...props
   return (
     <div className="flex flex-col mb-3">
       {label && (
-        <label htmlFor={inputId} className="mb-1.5 text-sm font-semibold text-slate-700">
+        <label htmlFor={inputId} className="mb-1.5 text-xs sm:text-sm font-semibold text-slate-700">
           {label}
           {props.required && <span className="ml-1 text-red-400">*</span>}
         </label>
@@ -28,10 +28,12 @@ const Input: React.FC<InputProps> = ({ label, hint, error, success, id, ...props
       <div className="relative">
         <input
           id={inputId}
-          className={`w-full rounded-xl border px-4 py-2.5 text-sm text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:ring-2 ${borderClass} ${success ? 'pr-10' : ''}`}
+          className={`w-full min-h-[44px] rounded-xl border px-3.5 sm:px-4 py-2.5 text-base sm:text-sm text-slate-900 outline-none transition-all duration-200 placeholder:text-slate-400 focus:ring-2 ${borderClass} ${
+            success || error ? 'pr-10' : ''
+          } ${className}`}
           {...props}
         />
-        {success && (
+        {success && !error && (
           <CheckCircle2
             size={16}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 pointer-events-none"
@@ -45,9 +47,7 @@ const Input: React.FC<InputProps> = ({ label, hint, error, success, id, ...props
         )}
       </div>
       {error && (
-        <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
-          {error}
-        </p>
+        <p className="mt-1 flex items-center gap-1 text-xs text-red-500 font-medium">{error}</p>
       )}
       {hint && !error && <p className="mt-1 text-xs text-slate-400">{hint}</p>}
     </div>

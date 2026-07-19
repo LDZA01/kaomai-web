@@ -42,7 +42,6 @@ const Matching = () => {
       setMatches(matchData);
       setResidents(residentData);
 
-      // Fetch jobs referenced in the matches
       if (matchData.length > 0) {
         const jobIds = [...new Set(matchData.map((m) => m.jobId))];
         if (isSupabaseConfigured) {
@@ -86,22 +85,21 @@ const Matching = () => {
     }
   };
 
-  // Enrich matches with job + resident details
   const enriched = matches.map((match) => ({
     ...match,
     job: jobs.find((j) => j.id === match.jobId),
     resident: residents.find((r) => r.id === match.residentId),
-  })).filter((m) => m.resident); // show even if job not found yet
+  })).filter((m) => m.resident);
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-4 sm:space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900">การติดตามการจับคู่</h1>
-        <p className="mt-1 text-slate-500">ติดตามคำขอและประสานงานการยืนยันการจ้างงานกับผู้จ้างงาน</p>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">การติดตามการจับคู่</h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-500">ติดตามคำขอและประสานงานการยืนยันการจ้างงานกับผู้จ้างงาน</p>
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-100 p-3 text-sm text-red-700">
+        <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-100 p-3 text-xs sm:text-sm text-red-700">
           <span>⚠</span> {error}
           <button onClick={() => setError('')} className="ml-auto text-red-400 hover:text-red-600">✕</button>
         </div>
@@ -112,41 +110,41 @@ const Matching = () => {
           <Loader2 size={28} className="animate-spin mr-2" /> กำลังโหลด...
         </div>
       ) : enriched.length === 0 ? (
-        <div className="rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center text-slate-400">
+        <div className="rounded-2xl border-2 border-dashed border-slate-200 py-16 text-center text-xs sm:text-sm text-slate-400">
           ยังไม่มีการจับคู่ — ผู้จ้างงานจะส่งคำขอมาที่นี่
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-3 sm:gap-4">
           {enriched.map((match) => (
             <Card key={match.id}>
-              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 {/* Left: Resident + Job info */}
-                <div className="flex gap-4">
-                  <div className="relative">
+                <div className="flex items-start sm:items-center gap-3.5">
+                  <div className="relative shrink-0">
                     {match.resident?.photoUrl ? (
                       <img
                         src={match.resident.photoUrl}
                         alt=""
-                        className="h-16 w-16 rounded-xl object-cover ring-2 ring-slate-100"
+                        className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl object-cover ring-2 ring-slate-100"
                       />
                     ) : (
-                      <div className="h-16 w-16 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-xl font-bold">
+                      <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 text-lg sm:text-xl font-bold">
                         {match.resident?.name?.[0] ?? '?'}
                       </div>
                     )}
-                    <div className={`absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white ${
+                    <div className={`absolute -bottom-1 -right-1 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full border-2 border-white ${
                       match.status === 'hired' ? 'bg-emerald-500' : match.status === 'rejected' ? 'bg-red-400' : 'bg-amber-400'
                     }`} />
                   </div>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-lg font-bold text-slate-900">{match.resident?.name}</h2>
+                      <h2 className="text-base sm:text-lg font-bold text-slate-900">{match.resident?.name}</h2>
                       <Badge
                         label={statusLabel[match.status] ?? match.status}
                         color={statusColor[match.status] ?? 'gray'}
                       />
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-slate-500">
                       {match.job && (
                         <span className="font-semibold text-slate-700">{match.job.title}</span>
                       )}
@@ -165,11 +163,12 @@ const Matching = () => {
                 </div>
 
                 {/* Right: Actions */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap sm:flex-nowrap gap-2 pt-2 lg:pt-0 border-t lg:border-t-0 border-slate-100">
                   <Button
                     type="button"
                     variant="secondary"
                     size="small"
+                    className="flex-1 sm:flex-none"
                     onClick={() => handleStatusChange(match.id, 'pending')}
                     disabled={match.status === 'pending'}
                   >
@@ -178,6 +177,7 @@ const Matching = () => {
                   <Button
                     type="button"
                     size="small"
+                    className="flex-1 sm:flex-none"
                     onClick={() => handleStatusChange(match.id, 'hired')}
                     disabled={match.status === 'hired'}
                   >
@@ -187,6 +187,7 @@ const Matching = () => {
                     type="button"
                     variant="danger"
                     size="small"
+                    className="flex-1 sm:flex-none"
                     onClick={() => handleStatusChange(match.id, 'rejected')}
                     disabled={match.status === 'rejected'}
                   >

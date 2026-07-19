@@ -22,6 +22,10 @@ const CreateJob = () => {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!employerId) {
+      setError('ไม่พบข้อมูลธุรกิจผู้จ้างงาน');
+      return;
+    }
     setError('');
     setLoading(true);
 
@@ -36,7 +40,6 @@ const CreateJob = () => {
         status: 'open',
       });
 
-      // Redirect to matches page after successful creation
       navigate('/employer/matches');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'ลงประกาศงานไม่สำเร็จ กรุณาลองใหม่');
@@ -45,32 +48,32 @@ const CreateJob = () => {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 animate-fade-in">
+    <div className="mx-auto max-w-3xl space-y-4 sm:space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-extrabold text-slate-900">ลงประกาศงานใหม่</h1>
-        <p className="mt-1 text-slate-500">กรอกรายละเอียดงาน ทักษะที่ต้องการ สถานที่ และอัตราค่าจ้าง</p>
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">ลงประกาศงานใหม่</h1>
+        <p className="mt-1 text-xs sm:text-sm text-slate-500">กรอกรายละเอียดงาน ทักษะที่ต้องการ สถานที่ และอัตราค่าจ้าง</p>
       </div>
 
       <Card>
-        <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100">
+        <div className="mb-4 sm:mb-6 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100">
             <Briefcase size={20} className="text-emerald-700" />
           </div>
           <div>
-            <h2 className="font-bold text-slate-900">ข้อมูลตำแหน่งงาน</h2>
+            <h2 className="font-bold text-slate-900 text-sm sm:text-base">ข้อมูลตำแหน่งงาน</h2>
             <p className="text-xs text-slate-400">
-              {org.employer?.businessName ?? ''} — ข้อมูลที่กรอกจะถูกใช้จับคู่กับคนไร้บ้านที่มีทักษะเหมาะสม
+              {org.employer?.businessName ?? 'ผู้จ้างงาน'} — ข้อมูลที่กรอกจะถูกใช้จับคู่กับคนไร้บ้านที่มีทักษะเหมาะสม
             </p>
           </div>
         </div>
 
         {error && (
-          <div className="mb-5 flex items-center gap-2 rounded-xl bg-red-50 border border-red-100 p-3 text-sm text-red-700">
+          <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 border border-red-100 p-3 text-xs sm:text-sm text-red-700">
             <span>⚠</span> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="grid gap-4">
+        <form onSubmit={handleSubmit} className="grid gap-3 sm:gap-4">
           <Input
             label="ชื่อตำแหน่งงาน"
             value={jobTitle}
@@ -78,8 +81,8 @@ const CreateJob = () => {
             placeholder="เช่น ผู้ช่วยทำอาหาร, พนักงานทำความสะอาด"
             required
           />
-          <div className="flex flex-col mb-4">
-            <label className="mb-1.5 text-sm font-semibold text-slate-700">
+          <div className="flex flex-col mb-3">
+            <label className="mb-1.5 text-xs sm:text-sm font-semibold text-slate-700">
               รายละเอียดงาน <span className="text-red-400">*</span>
             </label>
             <textarea
@@ -88,7 +91,7 @@ const CreateJob = () => {
               placeholder="อธิบายลักษณะงาน ระยะเวลา และสภาพแวดล้อมการทำงาน"
               rows={3}
               required
-              className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
+              className="w-full min-h-[100px] rounded-xl border border-slate-200 bg-white px-3.5 sm:px-4 py-2.5 text-base sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 resize-none"
             />
           </div>
           <Input
@@ -98,7 +101,7 @@ const CreateJob = () => {
             placeholder="เช่น ทำอาหาร, ทำความสะอาด, ยกของหนัก"
             required
           />
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
             <Input
               label="สถานที่ทำงาน"
               value={location}
@@ -106,8 +109,8 @@ const CreateJob = () => {
               placeholder="เช่น บางรัก, อารีย์, สาทร"
               required
             />
-            <div className="flex flex-col mb-4">
-              <label className="mb-1.5 text-sm font-semibold text-slate-700">
+            <div className="flex flex-col mb-3">
+              <label className="mb-1.5 text-xs sm:text-sm font-semibold text-slate-700">
                 อัตราค่าจ้าง (ต่อวัน) <span className="text-red-400">*</span>
               </label>
               <div className="relative">
@@ -119,12 +122,12 @@ const CreateJob = () => {
                   placeholder="500"
                   required
                   min="1"
-                  className="w-full rounded-xl border border-slate-200 bg-white pl-8 pr-4 py-2.5 text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                  className="w-full min-h-[44px] rounded-xl border border-slate-200 bg-white pl-8 pr-4 py-2.5 text-base sm:text-sm text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
                 />
               </div>
             </div>
           </div>
-          <Button type="submit" disabled={loading} size="large">
+          <Button type="submit" disabled={loading} size="large" className="w-full !mt-2">
             {loading
               ? <Loader2 size={18} className="animate-spin" aria-hidden />
               : <Save size={18} aria-hidden />}

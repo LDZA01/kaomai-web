@@ -2,6 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
+import MobileNav from './components/layout/MobileNav';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import EmployerDashboard from './pages/employer/EmployerDashboard';
@@ -52,7 +53,7 @@ const ProtectedRoute = ({
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
+        <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
       </div>
     );
   }
@@ -80,7 +81,7 @@ const RootRedirect = () => {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
+        <div className="h-9 w-9 animate-spin rounded-full border-4 border-blue-200 border-t-blue-600" />
       </div>
     );
   }
@@ -107,11 +108,11 @@ const AppShell = () => {
   return (
     <AuthContext.Provider value={auth}>
       <BrowserRouter>
-        <div className="min-h-screen bg-slate-50 text-slate-900">
+        <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-teal-100 selection:text-teal-900">
           <Navbar />
           <div className="mx-auto flex max-w-7xl">
             <Sidebar />
-            <main className="min-h-[calc(100vh-57px)] flex-1 p-4 sm:p-6">
+            <main className="min-h-[calc(100vh-57px)] flex-1 p-3.5 sm:p-6 pb-20 lg:pb-8">
               <Routes>
                 {/* Root */}
                 <Route path="/" element={<RootRedirect />} />
@@ -135,6 +136,9 @@ const AppShell = () => {
               </Routes>
             </main>
           </div>
+
+          {/* Sticky Bottom Bar for Mobile Devices */}
+          <MobileNav />
         </div>
       </BrowserRouter>
     </AuthContext.Provider>
