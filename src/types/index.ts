@@ -4,12 +4,18 @@ export interface Resident {
     id: string;
     name: string;
     age: number;
+    gender?: 'male' | 'female' | 'non_binary' | 'other' | 'prefer_not_to_say';
     skills: string[];
     photoUrl?: string;
     availability: string;
     workAvailability: boolean;
     notes?: string;
     shelterId: string;
+    hasIdCard?: boolean | null;
+    idCardStatus?: 'has_card' | 'in_progress' | 'needs_support' | 'not_started';
+    availableDays?: string[];
+    availableFrom?: string;
+    availableTo?: string;
 }
 
 export interface Shelter {
@@ -17,6 +23,8 @@ export interface Shelter {
     name: string;
     address: string;
     contactInfo: string;
+    phone?: string;
+    emergencyPhone?: string;
 }
 
 export interface Employer {
@@ -41,7 +49,7 @@ export interface JobMatch {
     id: string;
     jobId: string;
     residentId: string;
-    status: 'pending' | 'hired' | 'rejected';
+    status: 'suggested' | 'worker_accepted' | 'worker_declined' | 'shelter_approved' | 'shelter_declined';
     score: number;
     requestedAt: string;
 }

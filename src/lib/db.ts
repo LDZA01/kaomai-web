@@ -24,11 +24,17 @@ const toResident = (row: any): Resident => ({
   shelterId: row.shelter_id,
   name: row.name,
   age: row.age,
+  gender: row.gender ?? undefined,
   skills: row.skills ?? [],
   photoUrl: row.photo_url ?? undefined,
   availability: row.availability,
   workAvailability: row.work_availability,
   notes: row.notes ?? undefined,
+  hasIdCard: row.has_id_card ?? null,
+  idCardStatus: row.id_card_status ?? (row.has_id_card === true ? 'has_card' : row.has_id_card === false ? 'not_started' : undefined),
+  availableDays: row.available_days ?? [],
+  availableFrom: row.available_from?.slice?.(0, 5) ?? undefined,
+  availableTo: row.available_to?.slice?.(0, 5) ?? undefined,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,7 +54,7 @@ const toMatch = (row: any): JobMatch => ({
   id: row.id,
   jobId: row.job_id,
   residentId: row.homeless_profile_id,
-  status: row.match_status as JobMatch['status'],
+  status: (row.match_status === 'pending' ? 'suggested' : row.match_status === 'hired' ? 'shelter_approved' : row.match_status === 'rejected' ? 'worker_declined' : row.match_status) as JobMatch['status'],
   score: row.score,
   requestedAt: row.created_at,
 });
@@ -59,6 +65,8 @@ const toShelter = (row: any): Shelter => ({
   name: row.name,
   address: row.address,
   contactInfo: row.contact_info ?? '',
+  phone: row.phone ?? undefined,
+  emergencyPhone: row.emergency_phone ?? undefined,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,6 +95,13 @@ export async function fetchShelterByUserId(userId: string): Promise<Shelter | nu
   return data ? toShelter(data) : null;
 }
 
+export async function getShelters(): Promise<Shelter[]> {
+  if (!isSupabaseConfigured) return mockShelters;
+  const { data, error } = await supabase.from('shelters').select('*').order('name');
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(toShelter);
+}
+
 /** Create a new shelter record linked to an auth user. */
 export async function createShelter(
   userId: string,
@@ -105,6 +120,28 @@ export async function createShelter(
     .single();
 
   if (error) { console.error('[db] createShelter:', error.message); return null; }
+  return toShelter(data);
+}
+
+export async function updateShelterProfile(
+  shelter: Shelter,
+): Promise<Shelter> {
+  if (!isSupabaseConfigured) return shelter;
+
+  const { data, error } = await supabase
+    .from('shelters')
+    .update({
+      name: shelter.name,
+      address: shelter.address,
+      contact_info: shelter.contactInfo,
+      phone: shelter.phone ?? null,
+      emergency_phone: shelter.emergencyPhone ?? null,
+    })
+    .eq('id', shelter.id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
   return toShelter(data);
 }
 
@@ -144,6 +181,26 @@ export async function createEmployer(
     .single();
 
   if (error) { console.error('[db] createEmployer:', error.message); return null; }
+  return toEmployer(data);
+}
+
+export async function updateEmployerProfile(
+  employer: Employer,
+): Promise<Employer> {
+  if (!isSupabaseConfigured) return employer;
+
+  const { data, error } = await supabase
+    .from('employers')
+    .update({
+      business_name: employer.businessName,
+      industry: employer.industry,
+      contact_info: employer.contactInfo,
+    })
+    .eq('id', employer.id)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
   return toEmployer(data);
 }
 
@@ -192,11 +249,17 @@ export async function upsertResident(
     shelter_id: resident.shelterId,
     name: resident.name,
     age: resident.age,
+    gender: resident.gender ?? null,
     skills: resident.skills,
     photo_url: resident.photoUrl ?? null,
     availability: resident.availability,
     work_availability: resident.workAvailability,
     notes: resident.notes ?? null,
+    has_id_card: resident.hasIdCard ?? null,
+    id_card_status: resident.idCardStatus ?? null,
+    available_days: resident.availableDays ?? [],
+    available_from: resident.availableFrom || null,
+    available_to: resident.availableTo || null,
   };
   if (resident.id) payload.id = resident.id;
 
@@ -345,9 +408,12 @@ export async function upsertMatch(params: {
 export async function updateMatchStatus(id: string, status: JobMatch['status']): Promise<void> {
   if (!isSupabaseConfigured) return;
 
+  const timestamps: Record<string, string> = {};
+  if (status === 'worker_accepted' || status === 'worker_declined') timestamps.worker_decided_at = new Date().toISOString();
+  if (status === 'shelter_approved' || status === 'shelter_declined') timestamps.shelter_decided_at = new Date().toISOString();
   const { error } = await supabase
     .from('job_matches')
-    .update({ match_status: status })
+    .update({ match_status: status, ...timestamps })
     .eq('id', id);
 
   if (error) throw new Error(error.message);

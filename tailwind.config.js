@@ -1,11 +1,37 @@
 module.exports = {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: ['./src/**/*.{js,jsx,ts,tsx,mdx}'],
   theme: {
     extend: {
       colors: {
-        deepBlue: '#1E3A8A',
-        emeraldGreen: '#10B981',
-        warmGray: '#D1D5DB',
+        brand: {
+          50: 'oklch(97% 0.025 260)',
+          100: 'oklch(93% 0.055 260)',
+          200: 'oklch(86% 0.09 260)',
+          500: 'oklch(61% 0.19 260)',
+          600: 'oklch(55% 0.2 260)',
+          700: 'oklch(48% 0.19 260)',
+        },
+        navy: {
+          50: 'oklch(97% 0.012 255)',
+          100: 'oklch(93% 0.025 255)',
+          600: 'oklch(49% 0.105 252)',
+          700: 'oklch(41% 0.098 253)',
+          800: 'oklch(34% 0.088 254)',
+          900: 'oklch(28% 0.078 255)',
+          950: 'oklch(22% 0.062 255)',
+        },
+        opportunity: {
+          50: 'oklch(97% 0.025 188)',
+          100: 'oklch(93% 0.055 188)',
+          600: 'oklch(60% 0.105 184)',
+          700: 'oklch(49% 0.088 184)',
+        },
+        hope: {
+          50: 'oklch(97% 0.035 145)',
+          100: 'oklch(94% 0.07 145)',
+          600: 'oklch(58% 0.17 145)',
+          700: 'oklch(49% 0.15 145)',
+        },
       },
     },
   },

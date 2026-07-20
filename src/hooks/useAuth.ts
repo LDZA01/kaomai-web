@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { mockUsers } from '../data/mockData';
 import {
@@ -5,6 +7,8 @@ import {
   createShelter,
   fetchEmployerByUserId,
   fetchShelterByUserId,
+  updateEmployerProfile,
+  updateShelterProfile,
 } from '../lib/db';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import type { Employer, Shelter, UserProfile, UserRole } from '../types';
@@ -243,7 +247,55 @@ const useAuth = () => {
     setLoading(false);
   };
 
-  return { user, org, loading, signIn, login: signIn, signUp, signOut };
+  const updateProfile = async (values: {
+    displayName: string;
+    email: string;
+    organization: string;
+  }) => {
+    if (!user) return { error: { message: 'ไม่พบข้อมูลบัญชีผู้ใช้' } };
+
+    try {
+      let nextUser = { ...user, displayName: values.displayName, email: values.email };
+
+      if (isSupabaseConfigured) {
+        const { data, error } = await supabase.auth.updateUser({
+          email: values.email,
+          data: { display_name: values.displayName },
+        });
+        if (error) throw error;
+        if (data.user) nextUser = toProfile(data.user);
+      }
+
+      let nextOrg = org;
+      if (user.role === 'shelter' && org.shelter) {
+        const shelter = await updateShelterProfile({
+          ...org.shelter,
+          name: values.organization,
+          contactInfo: values.email,
+        });
+        nextOrg = { shelter, employer: null };
+      } else if (user.role === 'employer' && org.employer) {
+        const employer = await updateEmployerProfile({
+          ...org.employer,
+          businessName: values.organization,
+          contactInfo: values.email,
+        });
+        nextOrg = { shelter: null, employer };
+      }
+
+      setUser(nextUser);
+      setOrg(nextOrg);
+      return { error: null };
+    } catch (error) {
+      return {
+        error: {
+          message: error instanceof Error ? error.message : 'ไม่สามารถบันทึกข้อมูลได้',
+        },
+      };
+    }
+  };
+
+  return { user, org, loading, signIn, login: signIn, signUp, signOut, updateProfile };
 };
 
 export default useAuth;

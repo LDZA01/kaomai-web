@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: oklch(55% 0.2 260);
+  --primary-hover: oklch(48% 0.19 260);
+  --navy: oklch(21% 0.025 255);
+  --navy-hover: oklch(28% 0.04 255);
+  --ink: oklch(20.8% 0.006 264);
+  --muted: oklch(42% 0.025 250);
+  --surface: oklch(98.5% 0.004 245);
+  --section: oklch(97% 0.018 245);
+  --line: oklch(90% 0.012 245);
+  --teal: oklch(67% 0.14 184);
+  --hope: oklch(68% 0.18 145);
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--surface);
+  font-family: 'Noto Sans Thai', ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+button, input, textarea, select { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+img { max-width: 100%; }
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+:focus-visible { outline: 3px solid oklch(72% 0.12 188); outline-offset: 3px; }
+::selection { background: oklch(91% 0.07 188); color: var(--navy); }
+
+.container-page { width: min(100% - 2rem, 80rem); margin-inline: auto; }
+.text-balance { text-wrap: balance; }
+.text-pretty { text-wrap: pretty; }
+.page-enter { animation: page-enter .5s var(--ease-out) both; }
+@keyframes page-enter { from { opacity: .72; transform: translateY(8px); } }
+.hero-copy { animation: hero-copy .7s var(--ease-out) both; }
+.hero-media { animation: hero-media .85s .08s var(--ease-out) both; }
+.lift { transition: transform .22s var(--ease-out), box-shadow .22s var(--ease-out); }
+.lift:hover { transform: translateY(-3px); box-shadow: 0 8px 20px oklch(55% 0.2 260 / .10); }
+@keyframes hero-copy { from { opacity: .35; transform: translateY(14px); } }
+@keyframes hero-media { from { opacity: .45; transform: translateX(18px) scale(.985); } }
+
+@media (min-width: 48rem) { .container-page { width: min(100% - 4rem, 80rem); } }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
