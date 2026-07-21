@@ -251,6 +251,10 @@ const useAuth = () => {
     displayName: string;
     email: string;
     organization: string;
+    phone: string;
+    address?: string;
+    latitude?: number;
+    longitude?: number;
   }) => {
     if (!user) return { error: { message: 'ไม่พบข้อมูลบัญชีผู้ใช้' } };
 
@@ -272,6 +276,10 @@ const useAuth = () => {
           ...org.shelter,
           name: values.organization,
           contactInfo: values.email,
+          phone: values.phone,
+          address: values.address ?? org.shelter.address,
+          latitude: values.latitude,
+          longitude: values.longitude,
         });
         nextOrg = { shelter, employer: null };
       } else if (user.role === 'employer' && org.employer) {
@@ -279,6 +287,8 @@ const useAuth = () => {
           ...org.employer,
           businessName: values.organization,
           contactInfo: values.email,
+          phone: values.phone,
+          address: values.address ?? org.employer.address,
         });
         nextOrg = { shelter: null, employer };
       }

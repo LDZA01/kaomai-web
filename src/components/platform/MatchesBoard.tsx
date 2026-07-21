@@ -15,6 +15,7 @@ import {
   CreditCard,
   Eye,
   MapPin,
+  Navigation,
   Phone,
   PlusCircle,
   Search,
@@ -39,6 +40,7 @@ import {
   upsertMatch,
 } from '@/lib/db';
 import { rankResidentsForJob } from '@/lib/matching';
+import { formatDistanceThai, getApproximateDistance } from '@/lib/distance';
 import type { Job, JobMatch, Resident, Shelter } from '@/types';
 import { Button } from '@/components/ui/Button';
 
@@ -181,6 +183,19 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
         : current,
     );
     setNotice(message);
+  }
+
+  function distanceLabel(resident: Resident, job: Job) {
+    const shelter = state?.shelters.find((item) => item.id === resident.shelterId);
+    const kilometers = getApproximateDistance(
+      shelter?.latitude != null && shelter.longitude != null
+        ? { latitude: shelter.latitude, longitude: shelter.longitude }
+        : undefined,
+      job.latitude != null && job.longitude != null
+        ? { latitude: job.latitude, longitude: job.longitude }
+        : undefined,
+    );
+    return kilometers == null ? 'ยังไม่มีข้อมูลระยะทาง' : formatDistanceThai(kilometers);
   }
 
   function requestStatus(match: JobMatch, resident: Resident, job: Job, status: JobMatch['status']) {
@@ -412,6 +427,7 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
                                   ? ` (${resident.availableFrom}–${resident.availableTo} น.)`
                                   : ''}
                               </span>
+                              {primaryJob && <span className="flex items-center gap-1.5 font-semibold text-brand-700"><Navigation size={15}/><span>ระยะทางโดยประมาณจากศูนย์พักพิง:</span> {distanceLabel(resident, primaryJob)}</span>}
                             </div>
 
                             {/* Skills Tags */}
@@ -641,6 +657,10 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
                             <span className="flex items-center gap-1.5">
                               <Banknote size={16} className="text-opportunity-700" />฿
                               {job.dailyWage.toLocaleString()} บาท/วัน
+                            </span>
+                            <span className="flex items-center gap-1.5 font-semibold text-brand-700">
+                              <Navigation size={16}/>
+                              ระยะทางโดยประมาณจากศูนย์พักพิง: {distanceLabel(resident, job)}
                             </span>
                           </div>
                         </div>

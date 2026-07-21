@@ -8,6 +8,8 @@ export const mockShelters: Shelter[] = [
     contactInfo: 'coordination@baanmai.org',
     phone: '02-354-3388',
     emergencyPhone: '1300',
+    latitude: 13.7537,
+    longitude: 100.5018,
   },
 ];
 
@@ -17,12 +19,16 @@ export const mockEmployers: Employer[] = [
     businessName: 'ครัวเขียว เคเทอริ่ง',
     industry: 'ธุรกิจอาหาร',
     contactInfo: 'jobs@greenkitchen.example',
+    phone: '02-555-0142',
+    address: 'อารีย์ เขตพญาไท กรุงเทพมหานคร',
   },
   {
     id: 'employer-2',
     businessName: 'ซิตี้แคร์ บริการ',
     industry: 'ซ่อมบำรุงและสิ่งอำนวยความสะดวก',
     contactInfo: 'people@citycare.example',
+    phone: '02-555-0188',
+    address: 'บางรัก กรุงเทพมหานคร',
   },
 ];
 
@@ -103,6 +109,8 @@ export const mockJobs: Job[] = [
     location: 'บางรัก',
     dailyWage: 650,
     status: 'open',
+    latitude: 13.7278,
+    longitude: 100.5241,
   },
   {
     id: 'job-2',
@@ -113,6 +121,8 @@ export const mockJobs: Job[] = [
     location: 'อารีย์',
     dailyWage: 520,
     status: 'open',
+    latitude: 13.7797,
+    longitude: 100.5447,
   },
   {
     id: 'job-3',
@@ -123,6 +133,8 @@ export const mockJobs: Job[] = [
     location: 'จตุจักร',
     dailyWage: 580,
     status: 'open',
+    latitude: 13.8055,
+    longitude: 100.5502,
   },
 ];
 

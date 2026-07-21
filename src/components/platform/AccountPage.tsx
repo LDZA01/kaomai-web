@@ -5,6 +5,8 @@ import { Bell, CheckCircle2, Save, ShieldCheck, UserRound } from 'lucide-react';
 import { useAuthContext } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Field } from '@/components/ui/Field';
+import { LocationFields } from '@/components/ui/LocationFields';
+import { parseOptionalCoordinates } from '@/lib/location-validation';
 
 export function AccountPage({ mode }: { mode: 'profile' | 'settings' }) {
   const { user, org, updateProfile } = useAuthContext();
@@ -14,6 +16,7 @@ export function AccountPage({ mode }: { mode: 'profile' | 'settings' }) {
   const [notifications, setNotifications] = useState(true);
   const organization = user?.role === 'shelter' ? org.shelter?.name : org.employer?.businessName;
   const organizationId = user?.role === 'shelter' ? org.shelter?.id : org.employer?.id;
+  const phone = user?.role === 'shelter' ? org.shelter?.phone : org.employer?.phone;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -21,10 +24,21 @@ export function AccountPage({ mode }: { mode: 'profile' | 'settings' }) {
     setSaved(false);
     setError('');
     const data = new FormData(event.currentTarget);
+    let coordinates;
+    try {
+      coordinates = user?.role === 'shelter' ? parseOptionalCoordinates(data.get('latitude'), data.get('longitude')) : undefined;
+    } catch (coordinateError) {
+      setSaving(false);
+      setError(coordinateError instanceof Error ? coordinateError.message : 'พิกัดไม่ถูกต้อง');
+      return;
+    }
     const result = await updateProfile({
       displayName: String(data.get('displayName') ?? '').trim(),
       email: String(data.get('email') ?? '').trim(),
       organization: String(data.get('organization') ?? '').trim(),
+      phone: String(data.get('phone') ?? '').trim(),
+      address: String(data.get('address') ?? '').trim(),
+      ...coordinates,
     });
     setSaving(false);
     if (result.error) setError(result.error.message);
@@ -49,6 +63,9 @@ export function AccountPage({ mode }: { mode: 'profile' | 'settings' }) {
         <Field name="displayName" label="ชื่อที่ใช้แสดง" defaultValue={user?.displayName} required />
         <Field name="email" label="อีเมล" type="email" defaultValue={user?.email} required />
         <Field name="organization" label="องค์กร" defaultValue={organization ?? ''} required />
+        <Field name="phone" label="เบอร์ติดต่อ" type="tel" inputMode="tel" autoComplete="tel" defaultValue={phone ?? ''} placeholder="เช่น 02-354-3388 หรือ 081-234-5678" hint="ใช้สำหรับการประสานงานเกี่ยวกับผู้สมัครและตำแหน่งงาน" required />
+        {user?.role === 'shelter' && <LocationFields addressName="address" addressLabel="ตำแหน่งศูนย์พักพิง" defaultAddress={org.shelter?.address} defaultLatitude={org.shelter?.latitude} defaultLongitude={org.shelter?.longitude}/>} 
+        {user?.role === 'employer' && <div><Field name="address" label="ที่อยู่องค์กร" defaultValue={org.employer?.address ?? ''} placeholder="เลขที่ ถนน เขต/อำเภอ จังหวัด รหัสไปรษณีย์" required/><p className="mt-2 text-sm text-slate-500">ที่อยู่นี้เป็นข้อมูลสำนักงาน ส่วนการคำนวณระยะทางจะใช้สถานที่ทำงานในแต่ละประกาศ</p></div>}
         <div className="flex justify-end"><Button type="submit" disabled={saving}><Save size={18}/>{saving ? 'กำลังบันทึก…' : 'บันทึกการเปลี่ยนแปลง'}</Button></div>
       </form>
     </div>

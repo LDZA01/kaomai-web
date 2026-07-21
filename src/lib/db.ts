@@ -65,6 +65,8 @@ const toJob = (row: any): Job => ({
   location: row.location,
   dailyWage: Number(row.daily_wage),
   status: row.status as Job['status'],
+  latitude: row.latitude == null ? undefined : Number(row.latitude),
+  longitude: row.longitude == null ? undefined : Number(row.longitude),
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,6 +94,8 @@ const toShelter = (row: any): Shelter => ({
   contactInfo: row.contact_info ?? '',
   phone: row.phone ?? undefined,
   emergencyPhone: row.emergency_phone ?? undefined,
+  latitude: row.latitude == null ? undefined : Number(row.latitude),
+  longitude: row.longitude == null ? undefined : Number(row.longitude),
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -100,6 +104,8 @@ const toEmployer = (row: any): Employer => ({
   businessName: row.business_name,
   industry: row.industry ?? '',
   contactInfo: row.contact_info ?? '',
+  phone: row.phone ?? undefined,
+  address: row.address ?? undefined,
 });
 
 // ── Org: Shelter ─────────────────────────────────────────────────────────────
@@ -160,6 +166,8 @@ export async function updateShelterProfile(
   };
   if (shelter.phone !== undefined) payload.phone = shelter.phone;
   if (shelter.emergencyPhone !== undefined) payload.emergency_phone = shelter.emergencyPhone;
+  if (shelter.latitude !== undefined) payload.latitude = shelter.latitude;
+  if (shelter.longitude !== undefined) payload.longitude = shelter.longitude;
 
   let { data, error } = await supabase
     .from('shelters')
@@ -228,16 +236,31 @@ export async function updateEmployerProfile(
 ): Promise<Employer> {
   if (!isSupabaseConfigured) return employer;
 
-  const { data, error } = await supabase
+  const payload: Record<string, unknown> = {
+    business_name: employer.businessName,
+    industry: employer.industry,
+    contact_info: employer.contactInfo,
+    address: employer.address ?? null,
+  };
+  if (employer.phone !== undefined) payload.phone = employer.phone;
+
+  let { data, error } = await supabase
     .from('employers')
-    .update({
-      business_name: employer.businessName,
-      industry: employer.industry,
-      contact_info: employer.contactInfo,
-    })
+    .update(payload)
     .eq('id', employer.id)
     .select()
     .single();
+
+  if (error) {
+    const fallback = await supabase
+      .from('employers')
+      .update({ business_name: employer.businessName, industry: employer.industry, contact_info: employer.contactInfo })
+      .eq('id', employer.id)
+      .select()
+      .single();
+    data = fallback.data;
+    error = fallback.error;
+  }
 
   if (error) throw new Error(error.message);
   return toEmployer(data);
@@ -376,6 +399,8 @@ export async function createJob(job: Omit<Job, 'id'>): Promise<Job> {
       location: job.location,
       daily_wage: job.dailyWage,
       status: job.status,
+      latitude: job.latitude ?? null,
+      longitude: job.longitude ?? null,
     })
     .select()
     .single();

@@ -50,6 +50,49 @@ p { text-wrap: pretty; }
 @keyframes hero-copy { from { opacity: .35; transform: translateY(14px); } }
 @keyframes hero-media { from { opacity: .45; transform: translateX(18px) scale(.985); } }
 
+.journey-line {
+  position: absolute;
+  left: 13px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  border-radius: 999px;
+  pointer-events: none;
+}
+.journey-line-background { background: oklch(92% 0.04 250); }
+.journey-line-progress {
+  background: linear-gradient(to bottom, var(--primary), var(--teal), var(--hope));
+  transform-origin: top;
+}
+.journey-link { transition: background-color .18s ease, transform .18s var(--ease-out), box-shadow .18s ease; }
+.journey-link:hover { background: oklch(94% 0.04 250); box-shadow: 0 5px 14px oklch(55% 0.2 260 / .11); transform: translateY(-2px); }
+.journey-link:active { transform: translateY(0) scale(.98); }
+.journey-link-arrow { transition: transform .18s var(--ease-out); }
+.journey-link:hover .journey-link-arrow { transform: translateX(4px); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .journey-section[data-enhanced='true'][data-visible='false'] .journey-intro,
+  .journey-section[data-enhanced='true'][data-visible='false'] .journey-step-copy { opacity: 0; transform: translateY(12px); }
+  .journey-section[data-enhanced='true'][data-visible='false'] .journey-node { opacity: 0; transform: scale(.55); }
+  .journey-section[data-enhanced='true'][data-visible='false'] .journey-line-progress { transform: scaleY(0); }
+  .journey-intro { transition: opacity .5s var(--ease-out), transform .5s var(--ease-out); }
+  .journey-step-copy {
+    transition: opacity .42s calc(.18s + var(--journey-index) * .11s) var(--ease-out), transform .42s calc(.18s + var(--journey-index) * .11s) var(--ease-out);
+  }
+  .journey-node {
+    transition: opacity .32s calc(.1s + var(--journey-index) * .11s) ease, transform .48s calc(.1s + var(--journey-index) * .11s) var(--ease-out);
+  }
+  .journey-line-progress { transition: transform 1.15s .08s var(--ease-out); }
+}
+
+@media (min-width: 40rem) {
+  .journey-line { left: 0; right: 0; top: 0; bottom: auto; width: auto; height: 2px; }
+  .journey-line-progress { background: linear-gradient(to right, var(--primary), var(--teal), var(--hope)); transform-origin: left; }
+  @media (prefers-reduced-motion: no-preference) {
+    .journey-section[data-enhanced='true'][data-visible='false'] .journey-line-progress { transform: scaleX(0); }
+  }
+}
+
 @media (min-width: 48rem) { .container-page { width: min(100% - 4rem, 80rem); } }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

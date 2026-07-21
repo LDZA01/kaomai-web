@@ -25,6 +25,8 @@ export interface Shelter {
     contactInfo: string;
     phone?: string;
     emergencyPhone?: string;
+    latitude?: number;
+    longitude?: number;
 }
 
 export interface Employer {
@@ -32,6 +34,8 @@ export interface Employer {
     businessName: string;
     industry: string;
     contactInfo: string;
+    phone?: string;
+    address?: string;
 }
 
 export interface Job {
@@ -43,6 +47,8 @@ export interface Job {
     dailyWage: number;
     employerId: string;
     status: 'draft' | 'open' | 'filled';
+    latitude?: number;
+    longitude?: number;
 }
 
 export interface JobMatch {
