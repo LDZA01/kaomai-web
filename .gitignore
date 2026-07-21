@@ -7,6 +7,9 @@ node_modules/
 dist/
 dist-ssr/
 build/
+.next/
+out/
+.playwright-cli/
 
 # Environment variables
 .env
