@@ -19,23 +19,41 @@ import {
 // ── Row mappers (snake_case DB → camelCase TS) ───────────────────────────────
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toResident = (row: any): Resident => ({
-  id: row.id,
-  shelterId: row.shelter_id,
-  name: row.name,
-  age: row.age,
-  gender: row.gender ?? undefined,
-  skills: row.skills ?? [],
-  photoUrl: row.photo_url ?? undefined,
-  availability: row.availability,
-  workAvailability: row.work_availability,
-  notes: row.notes ?? undefined,
-  hasIdCard: row.has_id_card ?? null,
-  idCardStatus: row.id_card_status ?? (row.has_id_card === true ? 'has_card' : row.has_id_card === false ? 'not_started' : undefined),
-  availableDays: row.available_days ?? [],
-  availableFrom: row.available_from?.slice?.(0, 5) ?? undefined,
-  availableTo: row.available_to?.slice?.(0, 5) ?? undefined,
-});
+const toResident = (row: any): Resident => {
+  let days: string[] = row.available_days ?? [];
+  let from: string | undefined = row.available_from?.slice?.(0, 5);
+  let to: string | undefined = row.available_to?.slice?.(0, 5);
+
+  if ((!days || days.length === 0) && row.availability) {
+    const parts = row.availability.split('·');
+    if (parts[0]) {
+      days = parts[0].split(',').map((s: string) => s.trim()).filter(Boolean);
+    }
+    if (parts[1] && parts[1].includes('–')) {
+      const times = parts[1].split('–');
+      from = times[0]?.trim();
+      to = times[1]?.trim();
+    }
+  }
+
+  return {
+    id: row.id,
+    shelterId: row.shelter_id,
+    name: row.name,
+    age: row.age,
+    gender: row.gender ?? undefined,
+    skills: row.skills ?? [],
+    photoUrl: row.photo_url ?? undefined,
+    availability: row.availability,
+    workAvailability: row.work_availability,
+    notes: row.notes ?? undefined,
+    hasIdCard: row.has_id_card ?? (row.id_card_status === 'has_card' ? true : row.id_card_status ? false : null),
+    idCardStatus: row.id_card_status ?? (row.has_id_card === true ? 'has_card' : row.has_id_card === false ? 'not_started' : 'has_card'),
+    availableDays: days,
+    availableFrom: from,
+    availableTo: to,
+  };
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toJob = (row: any): Job => ({
@@ -50,14 +68,21 @@ const toJob = (row: any): Job => ({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const toMatch = (row: any): JobMatch => ({
-  id: row.id,
-  jobId: row.job_id,
-  residentId: row.homeless_profile_id,
-  status: (row.match_status === 'pending' ? 'suggested' : row.match_status === 'hired' ? 'shelter_approved' : row.match_status === 'rejected' ? 'worker_declined' : row.match_status) as JobMatch['status'],
-  score: row.score,
-  requestedAt: row.created_at,
-});
+const toMatch = (row: any): JobMatch => {
+  let status: JobMatch['status'] = row.match_status;
+  if (row.match_status === 'pending') status = 'suggested';
+  if (row.match_status === 'hired') status = 'shelter_approved';
+  if (row.match_status === 'rejected') status = 'shelter_declined';
+
+  return {
+    id: row.id,
+    jobId: row.job_id,
+    residentId: row.homeless_profile_id,
+    status,
+    score: row.score,
+    requestedAt: row.created_at,
+  };
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toShelter = (row: any): Shelter => ({
@@ -128,18 +153,32 @@ export async function updateShelterProfile(
 ): Promise<Shelter> {
   if (!isSupabaseConfigured) return shelter;
 
-  const { data, error } = await supabase
+  const payload: Record<string, unknown> = {
+    name: shelter.name,
+    address: shelter.address,
+    contact_info: shelter.contactInfo,
+  };
+  if (shelter.phone !== undefined) payload.phone = shelter.phone;
+  if (shelter.emergencyPhone !== undefined) payload.emergency_phone = shelter.emergencyPhone;
+
+  let { data, error } = await supabase
     .from('shelters')
-    .update({
-      name: shelter.name,
-      address: shelter.address,
-      contact_info: shelter.contactInfo,
-      phone: shelter.phone ?? null,
-      emergency_phone: shelter.emergencyPhone ?? null,
-    })
+    .update(payload)
     .eq('id', shelter.id)
     .select()
     .single();
+
+  if (error) {
+    // Fallback if phone columns don't exist yet
+    const res = await supabase
+      .from('shelters')
+      .update({ name: shelter.name, address: shelter.address, contact_info: shelter.contactInfo })
+      .eq('id', shelter.id)
+      .select()
+      .single();
+    data = res.data;
+    error = res.error;
+  }
 
   if (error) throw new Error(error.message);
   return toShelter(data);
@@ -245,7 +284,8 @@ export async function upsertResident(
     return { ...resident, id: resident.id ?? crypto.randomUUID() } as Resident;
   }
 
-  const payload: Record<string, unknown> = {
+  // Attempt 1: Full payload with all extended schema columns
+  const fullPayload: Record<string, unknown> = {
     shelter_id: resident.shelterId,
     name: resident.name,
     age: resident.age,
@@ -261,16 +301,37 @@ export async function upsertResident(
     available_from: resident.availableFrom || null,
     available_to: resident.availableTo || null,
   };
-  if (resident.id) payload.id = resident.id;
+  if (resident.id) fullPayload.id = resident.id;
 
   const { data, error } = await supabase
     .from('homeless_profiles')
-    .upsert(payload)
+    .upsert(fullPayload)
     .select()
     .single();
 
-  if (error) throw new Error(error.message);
-  return toResident(data);
+  if (!error && data) return toResident(data);
+
+  // Attempt 2: Fallback to core columns if database migration hasn't been run yet
+  const corePayload: Record<string, unknown> = {
+    shelter_id: resident.shelterId,
+    name: resident.name,
+    age: resident.age,
+    skills: resident.skills,
+    photo_url: resident.photoUrl ?? null,
+    availability: resident.availability,
+    work_availability: resident.workAvailability,
+    notes: resident.notes ?? null,
+  };
+  if (resident.id) corePayload.id = resident.id;
+
+  const { data: coreData, error: coreError } = await supabase
+    .from('homeless_profiles')
+    .upsert(corePayload)
+    .select()
+    .single();
+
+  if (coreError) throw new Error(coreError.message);
+  return toResident(coreData);
 }
 
 /** Permanently delete a resident profile. */
@@ -400,8 +461,32 @@ export async function upsertMatch(params: {
     .select()
     .single();
 
-  if (error) throw new Error(error.message);
-  return toMatch(data);
+  if (!error && data) return toMatch(data);
+
+  // Fallback for legacy match_status
+  const dbStatus =
+    params.status === 'shelter_approved'
+      ? 'hired'
+      : params.status === 'worker_declined' || params.status === 'shelter_declined'
+      ? 'rejected'
+      : 'pending';
+
+  const { data: legacyData, error: legacyError } = await supabase
+    .from('job_matches')
+    .upsert(
+      {
+        job_id: params.jobId,
+        homeless_profile_id: params.residentId,
+        match_status: dbStatus,
+        score: params.score,
+      },
+      { onConflict: 'job_id,homeless_profile_id' },
+    )
+    .select()
+    .single();
+
+  if (legacyError) throw new Error(legacyError.message);
+  return toMatch(legacyData);
 }
 
 /** Update the status of an existing match. */
@@ -409,12 +494,33 @@ export async function updateMatchStatus(id: string, status: JobMatch['status']):
   if (!isSupabaseConfigured) return;
 
   const timestamps: Record<string, string> = {};
-  if (status === 'worker_accepted' || status === 'worker_declined') timestamps.worker_decided_at = new Date().toISOString();
-  if (status === 'shelter_approved' || status === 'shelter_declined') timestamps.shelter_decided_at = new Date().toISOString();
+  if (status === 'worker_accepted' || status === 'worker_declined') {
+    timestamps.worker_decided_at = new Date().toISOString();
+  }
+  if (status === 'shelter_approved' || status === 'shelter_declined') {
+    timestamps.shelter_decided_at = new Date().toISOString();
+  }
+
+  // Attempt 1: Direct status & timestamp update
   const { error } = await supabase
     .from('job_matches')
     .update({ match_status: status, ...timestamps })
     .eq('id', id);
 
-  if (error) throw new Error(error.message);
+  if (!error) return;
+
+  // Fallback to legacy status
+  const dbStatus =
+    status === 'shelter_approved'
+      ? 'hired'
+      : status === 'worker_declined' || status === 'shelter_declined'
+      ? 'rejected'
+      : 'pending';
+
+  const { error: legacyErr } = await supabase
+    .from('job_matches')
+    .update({ match_status: dbStatus })
+    .eq('id', id);
+
+  if (legacyErr) throw new Error(legacyErr.message);
 }

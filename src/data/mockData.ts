@@ -29,17 +29,18 @@ export const mockEmployers: Employer[] = [
 export const mockUsers: UserProfile[] = [
   {
     id: 'user-shelter',
-    email: 'shelter@kaowmai.test',
+    email: 'shelter.demo@kaowmai.th',
     role: 'shelter',
-    displayName: 'ผู้ประสานงานบ้านใหม่',
+    displayName: 'ศูนย์คนไร้บ้านบ้านใหม่',
   },
   {
     id: 'user-employer',
-    email: 'employer@kaowmai.test',
+    email: 'employer.demo@kaowmai.th',
     role: 'employer',
-    displayName: 'ฝ่ายสรรหาครัวเขียว',
+    displayName: 'ครัวเขียว เคเทอริ่ง',
   },
 ];
+
 
 export const mockResidents: Resident[] = [
   {
