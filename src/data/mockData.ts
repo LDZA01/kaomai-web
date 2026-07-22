@@ -6,6 +6,10 @@ export const mockShelters: Shelter[] = [
     name: 'ศูนย์คนไร้บ้านบ้านใหม่',
     address: 'ปทุมวัน, กรุงเทพมหานคร',
     contactInfo: 'coordination@baanmai.org',
+    phone: '02-354-3388',
+    emergencyPhone: '1300',
+    latitude: 13.7537,
+    longitude: 100.5018,
   },
 ];
 
@@ -15,29 +19,34 @@ export const mockEmployers: Employer[] = [
     businessName: 'ครัวเขียว เคเทอริ่ง',
     industry: 'ธุรกิจอาหาร',
     contactInfo: 'jobs@greenkitchen.example',
+    phone: '02-555-0142',
+    address: 'อารีย์ เขตพญาไท กรุงเทพมหานคร',
   },
   {
     id: 'employer-2',
     businessName: 'ซิตี้แคร์ บริการ',
     industry: 'ซ่อมบำรุงและสิ่งอำนวยความสะดวก',
     contactInfo: 'people@citycare.example',
+    phone: '02-555-0188',
+    address: 'บางรัก กรุงเทพมหานคร',
   },
 ];
 
 export const mockUsers: UserProfile[] = [
   {
     id: 'user-shelter',
-    email: 'shelter@kaowmai.test',
+    email: 'shelter.demo@kaowmai.th',
     role: 'shelter',
-    displayName: 'ผู้ประสานงานบ้านใหม่',
+    displayName: 'ศูนย์คนไร้บ้านบ้านใหม่',
   },
   {
     id: 'user-employer',
-    email: 'employer@kaowmai.test',
+    email: 'employer.demo@kaowmai.th',
     role: 'employer',
-    displayName: 'ฝ่ายสรรหาครัวเขียว',
+    displayName: 'ครัวเขียว เคเทอริ่ง',
   },
 ];
+
 
 export const mockResidents: Resident[] = [
   {
@@ -45,6 +54,7 @@ export const mockResidents: Resident[] = [
     shelterId: 'shelter-1',
     name: 'สมชาย ก.',
     age: 34,
+    gender: 'male',
     skills: ['ช่างไม้', 'ทาสี', 'ซ่อมบำรุง'],
     photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=70',
     availability: 'เต็มเวลา',
@@ -56,6 +66,7 @@ export const mockResidents: Resident[] = [
     shelterId: 'shelter-1',
     name: 'มาลี ส.',
     age: 28,
+    gender: 'female',
     skills: ['ทำอาหาร', 'ทำความสะอาด', 'เตรียมอาหาร'],
     photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=70',
     availability: 'พาร์ทไทม์',
@@ -67,6 +78,7 @@ export const mockResidents: Resident[] = [
     shelterId: 'shelter-1',
     name: 'อนันต์ พ.',
     age: 45,
+    gender: 'male',
     skills: ['จัดสวน', 'ซ่อมบำรุง', 'ส่งของ'],
     photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=70',
     availability: 'เต็มเวลา',
@@ -78,6 +90,7 @@ export const mockResidents: Resident[] = [
     shelterId: 'shelter-1',
     name: 'นก ต.',
     age: 39,
+    gender: 'female',
     skills: ['จัดเรียงสินค้า', 'ทำความสะอาด', 'บริการลูกค้า'],
     photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=240&q=70',
     availability: 'เฉพาะสุดสัปดาห์',
@@ -96,6 +109,8 @@ export const mockJobs: Job[] = [
     location: 'บางรัก',
     dailyWage: 650,
     status: 'open',
+    latitude: 13.7278,
+    longitude: 100.5241,
   },
   {
     id: 'job-2',
@@ -106,6 +121,8 @@ export const mockJobs: Job[] = [
     location: 'อารีย์',
     dailyWage: 520,
     status: 'open',
+    latitude: 13.7797,
+    longitude: 100.5447,
   },
   {
     id: 'job-3',
@@ -116,6 +133,8 @@ export const mockJobs: Job[] = [
     location: 'จตุจักร',
     dailyWage: 580,
     status: 'open',
+    latitude: 13.8055,
+    longitude: 100.5502,
   },
 ];
 
@@ -124,7 +143,7 @@ export const mockJobMatches: JobMatch[] = [
     id: 'match-1',
     jobId: 'job-1',
     residentId: 'resident-1',
-    status: 'pending',
+    status: 'suggested',
     score: 100,
     requestedAt: '2026-07-14T09:00:00.000Z',
   },
@@ -132,7 +151,7 @@ export const mockJobMatches: JobMatch[] = [
     id: 'match-2',
     jobId: 'job-2',
     residentId: 'resident-2',
-    status: 'hired',
+    status: 'shelter_approved',
     score: 100,
     requestedAt: '2026-07-15T10:30:00.000Z',
   },
@@ -140,7 +159,7 @@ export const mockJobMatches: JobMatch[] = [
     id: 'match-3',
     jobId: 'job-3',
     residentId: 'resident-3',
-    status: 'pending',
+    status: 'worker_accepted',
     score: 100,
     requestedAt: '2026-07-15T13:15:00.000Z',
   },
