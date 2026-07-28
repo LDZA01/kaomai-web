@@ -1,4 +1,4 @@
-import type { Employer, Job, JobMatch, Resident, Shelter, UserProfile } from '../types';
+import type { CaseManager, Employer, Job, JobMatch, Resident, Shelter, UserProfile } from '../types';
 
 export const mockShelters: Shelter[] = [
   {
@@ -47,6 +47,20 @@ export const mockUsers: UserProfile[] = [
   },
 ];
 
+export const mockCaseManagers: CaseManager[] = [
+  {
+    id: 'case-manager-1',
+    shelterId: 'shelter-1',
+    name: 'อรทัย ใจดี',
+    phone: '081-234-5678',
+  },
+  {
+    id: 'case-manager-2',
+    shelterId: 'shelter-1',
+    name: 'วิชัย พร้อมช่วย',
+    phone: '089-345-6789',
+  },
+];
 
 export const mockResidents: Resident[] = [
   {
@@ -58,6 +72,11 @@ export const mockResidents: Resident[] = [
     skills: ['ช่างไม้', 'ทาสี', 'ซ่อมบำรุง'],
     photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=240&q=70',
     availability: 'เต็มเวลา',
+    preferredWorkType: 'full_time',
+    paymentPreference: 'bank_transfer',
+    chronicConditions: '',
+    caseManagerId: 'case-manager-1',
+    caseManager: mockCaseManagers[0],
     workAvailability: true,
     notes: 'มีประสบการณ์งานซ่อมแซมและเชื่อถือได้สำหรับกะเช้า',
   },
@@ -70,6 +89,11 @@ export const mockResidents: Resident[] = [
     skills: ['ทำอาหาร', 'ทำความสะอาด', 'เตรียมอาหาร'],
     photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=240&q=70',
     availability: 'พาร์ทไทม์',
+    preferredWorkType: 'part_time',
+    paymentPreference: 'cash',
+    chronicConditions: 'แพ้อาหารทะเล',
+    caseManagerId: 'case-manager-1',
+    caseManager: mockCaseManagers[0],
     workAvailability: true,
     notes: 'ชอบทำงานช่วงกลางวันในครัว มีประสบการณ์งานเลี้ยงรับรอง',
   },
@@ -82,7 +106,11 @@ export const mockResidents: Resident[] = [
     skills: ['จัดสวน', 'ซ่อมบำรุง', 'ส่งของ'],
     photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=240&q=70',
     availability: 'เต็มเวลา',
+    preferredWorkType: 'full_time',
+    paymentPreference: 'bank_transfer',
     workAvailability: true,
+    caseManagerId: 'case-manager-1',
+    caseManager: mockCaseManagers[0],
     notes: 'เหมาะกับงานกลางแจ้ง ดูแลสนาม และขนส่งเบา',
   },
   {

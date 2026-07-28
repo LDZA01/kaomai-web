@@ -1,4 +1,27 @@
 export type UserRole = 'shelter' | 'employer';
+export type PreferredWorkType = 'full_time' | 'part_time';
+export type PaymentPreference = 'cash' | 'bank_transfer';
+export type DocumentCategory = 'education' | 'training' | 'employment' | 'other';
+
+export interface ResidentDocument {
+    id: string;
+    residentId: string;
+    category: DocumentCategory;
+    originalName: string;
+    storagePath: string;
+    mimeType: string;
+    sizeBytes: number;
+}
+
+export interface CaseManagerContact {
+    id: string;
+    name: string;
+    phone: string;
+}
+
+export interface CaseManager extends CaseManagerContact {
+    shelterId: string;
+}
 
 export interface Resident {
     id: string;
@@ -16,6 +39,12 @@ export interface Resident {
     availableDays?: string[];
     availableFrom?: string;
     availableTo?: string;
+    chronicConditions?: string;
+    preferredWorkType?: PreferredWorkType;
+    paymentPreference?: PaymentPreference;
+    documents?: ResidentDocument[];
+    caseManagerId?: string;
+    caseManager?: CaseManagerContact;
 }
 
 export interface Shelter {

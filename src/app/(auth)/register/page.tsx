@@ -1,4 +1,28 @@
 import Link from 'next/link';
 import { Logo } from '@/components/ui/Logo';
 import { RegisterForm } from '@/components/auth/RegisterForm';
-export default function RegisterPage(){return <main className="min-h-screen min-w-0 bg-gradient-to-br from-brand-50 via-white to-opportunity-50 px-3 py-8 sm:px-4 sm:py-10"><div className="mx-auto min-w-0 w-full max-w-2xl rounded-[16px] bg-white p-5 shadow-[0_8px_20px_oklch(55%_0.2_260_/_0.1)] sm:p-10"><Logo/><h1 className="mt-9 text-3xl font-extrabold text-slate-950">เริ่มต้นสร้างโอกาสร่วมกัน</h1><p className="mt-2 text-slate-600">เลือกบทบาทและกรอกข้อมูลสำหรับพื้นที่ทำงานขององค์กร</p><div className="mt-8 min-w-0"><RegisterForm/></div><p className="mt-6 text-center text-sm text-slate-700">มีบัญชีแล้ว? <Link className="font-bold text-brand-700 underline" href="/login">เข้าสู่ระบบ</Link></p></div></main>}
+
+export default function RegisterPage() {
+  return (
+    <main className="min-h-screen min-w-0 bg-gradient-to-br from-brand-50 via-white to-opportunity-50 px-3 py-8 sm:px-4 sm:py-10">
+      <div className="mx-auto min-w-0 w-full max-w-2xl rounded-[16px] bg-white p-5 shadow-[0_8px_20px_oklch(55%_0.2_260_/_0.1)] sm:p-10">
+        <Logo />
+        <h1 className="mt-9 text-3xl font-extrabold text-slate-950">
+          เริ่มต้นสร้างโอกาสร่วมกัน
+        </h1>
+        <p className="mt-2 text-slate-600">
+          เลือกบทบาทและกรอกข้อมูลสำหรับพื้นที่ทำงานขององค์กร
+        </p>
+        <div className="mt-8 min-w-0">
+          <RegisterForm />
+        </div>
+        <p className="mt-6 text-center text-sm text-slate-700">
+          มีบัญชีแล้ว?{' '}
+          <Link className="font-bold text-brand-700 underline" href="/login">
+            เข้าสู่ระบบ
+          </Link>
+        </p>
+      </div>
+    </main>
+  );
+}

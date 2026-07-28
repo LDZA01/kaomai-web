@@ -7,8 +7,9 @@
  */
 
 import { isSupabaseConfigured, supabase } from './supabase';
-import type { Employer, Job, JobMatch, Resident, Shelter } from '../types';
+import type { CaseManager, Employer, Job, JobMatch, Resident, Shelter } from '../types';
 import {
+  mockCaseManagers,
   mockEmployers,
   mockJobMatches,
   mockJobs,
@@ -36,6 +37,10 @@ const toResident = (row: any): Resident => {
     }
   }
 
+  const relatedManager = Array.isArray(row.case_manager)
+    ? row.case_manager[0]
+    : row.case_manager;
+
   return {
     id: row.id,
     shelterId: row.shelter_id,
@@ -52,8 +57,27 @@ const toResident = (row: any): Resident => {
     availableDays: days,
     availableFrom: from,
     availableTo: to,
+    chronicConditions: row.chronic_conditions ?? undefined,
+    preferredWorkType: row.preferred_work_type ?? undefined,
+    paymentPreference: row.payment_preference ?? undefined,
+    caseManagerId: row.case_manager_id ?? relatedManager?.id ?? undefined,
+    caseManager: relatedManager
+      ? {
+          id: relatedManager.id,
+          name: relatedManager.name,
+          phone: relatedManager.phone,
+        }
+      : undefined,
   };
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const toCaseManager = (row: any): CaseManager => ({
+  id: row.id,
+  shelterId: row.shelter_id,
+  name: row.name,
+  phone: row.phone,
+});
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toJob = (row: any): Job => ({
@@ -131,6 +155,61 @@ export async function getShelters(): Promise<Shelter[]> {
   const { data, error } = await supabase.from('shelters').select('*').order('name');
   if (error) throw new Error(error.message);
   return (data ?? []).map(toShelter);
+}
+
+export async function getCaseManagers(shelterId: string): Promise<CaseManager[]> {
+  if (!shelterId) return [];
+  if (!isSupabaseConfigured) {
+    return mockCaseManagers.filter((manager) => manager.shelterId === shelterId);
+  }
+
+  const { data, error } = await supabase
+    .from('case_managers')
+    .select('*')
+    .eq('shelter_id', shelterId)
+    .order('name');
+
+  if (error) throw new Error(error.message);
+  return (data ?? []).map(toCaseManager);
+}
+
+export async function upsertCaseManager(
+  manager: Omit<CaseManager, 'id'> & { id?: string },
+): Promise<CaseManager> {
+  const normalized = {
+    ...manager,
+    name: manager.name.trim(),
+    phone: manager.phone.trim(),
+  };
+
+  if (!isSupabaseConfigured) {
+    return {
+      ...normalized,
+      id: manager.id ?? `case-manager-${crypto.randomUUID()}`,
+    };
+  }
+
+  const payload: Record<string, unknown> = {
+    shelter_id: normalized.shelterId,
+    name: normalized.name,
+    phone: normalized.phone,
+  };
+  if (manager.id) payload.id = manager.id;
+
+  const { data, error } = await supabase
+    .from('case_managers')
+    .upsert(payload)
+    .select()
+    .single();
+
+  if (error) throw new Error(error.message);
+  return toCaseManager(data);
+}
+
+export async function deleteCaseManager(id: string): Promise<void> {
+  if (!isSupabaseConfigured) return;
+  const { error } = await supabase.from('case_managers').delete().eq('id', id);
+  if (error) throw new Error(error.message);
 }
 
 /** Create a new shelter record linked to an auth user. */
@@ -278,12 +357,19 @@ export async function getResidents(shelterId: string): Promise<Resident[]> {
 
   const { data, error } = await supabase
     .from('homeless_profiles')
-    .select('*')
+    .select('*,case_manager:case_managers(id,name,phone)')
     .eq('shelter_id', shelterId)
     .order('created_at', { ascending: false });
 
-  if (error) throw new Error(error.message);
-  return (data ?? []).map(toResident);
+  if (!error) return (data ?? []).map(toResident);
+
+  const fallback = await supabase
+    .from('homeless_profiles')
+    .select('*')
+    .eq('shelter_id', shelterId)
+    .order('created_at', { ascending: false });
+  if (fallback.error) throw new Error(fallback.error.message);
+  return (fallback.data ?? []).map(toResident);
 }
 
 /** Get ALL residents across all shelters (used by employers for matching). */
@@ -292,11 +378,17 @@ export async function getAllResidents(): Promise<Resident[]> {
 
   const { data, error } = await supabase
     .from('homeless_profiles')
-    .select('*')
+    .select('id,shelter_id,name,age,gender,skills,photo_url,availability,work_availability,notes,has_id_card,id_card_status,available_days,available_from,available_to,preferred_work_type,payment_preference,case_manager_id,case_manager:case_managers(id,name,phone)')
     .order('created_at', { ascending: false });
 
-  if (error) throw new Error(error.message);
-  return (data ?? []).map(toResident);
+  if (!error) return (data ?? []).map(toResident);
+
+  const fallback = await supabase
+    .from('homeless_profiles')
+    .select('id,shelter_id,name,age,gender,skills,photo_url,availability,work_availability,notes,has_id_card,id_card_status,available_days,available_from,available_to,preferred_work_type,payment_preference')
+    .order('created_at', { ascending: false });
+  if (fallback.error) throw new Error(fallback.error.message);
+  return (fallback.data ?? []).map(toResident);
 }
 
 /** Create or update a resident profile. */
@@ -323,13 +415,17 @@ export async function upsertResident(
     available_days: resident.availableDays ?? [],
     available_from: resident.availableFrom || null,
     available_to: resident.availableTo || null,
+    chronic_conditions: resident.chronicConditions?.trim() || null,
+    preferred_work_type: resident.preferredWorkType ?? null,
+    payment_preference: resident.paymentPreference ?? null,
+    case_manager_id: resident.caseManagerId || null,
   };
   if (resident.id) fullPayload.id = resident.id;
 
   const { data, error } = await supabase
     .from('homeless_profiles')
     .upsert(fullPayload)
-    .select()
+    .select('*,case_manager:case_managers(id,name,phone)')
     .single();
 
   if (!error && data) return toResident(data);

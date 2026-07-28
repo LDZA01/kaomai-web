@@ -802,6 +802,34 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
                       </div>
                     )}
 
+                    <div className="mt-5 rounded-[16px] border border-indigo-100 bg-indigo-50/70 p-5">
+                      <div className="flex items-start gap-3">
+                        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-indigo-700">
+                          <UserCheck size={20} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-xs font-bold uppercase tracking-wider text-indigo-700">ผู้จัดการรายกรณี</p>
+                          {expandedResident.caseManager ? (
+                            <>
+                              <h4 className="mt-0.5 text-lg font-extrabold text-slate-950">{expandedResident.caseManager.name}</h4>
+                              <a
+                                href={`tel:${expandedResident.caseManager.phone}`}
+                                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-[12px] bg-white px-4 font-bold text-indigo-700 shadow-sm hover:bg-indigo-100"
+                              >
+                                <Phone size={18} />
+                                <span>
+                                  <span className="block text-xs font-semibold text-slate-500">โทรติดต่อ</span>
+                                  {expandedResident.caseManager.phone}
+                                </span>
+                              </a>
+                            </>
+                          ) : (
+                            <p className="mt-1 font-semibold text-slate-600">ยังไม่ได้มอบหมายผู้จัดการรายกรณี</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Shelter Contact Section */}
                     <div className="mt-5 rounded-[16px] bg-brand-50 p-5 ring-1 ring-brand-100">
                       <div className="flex items-start gap-3">
