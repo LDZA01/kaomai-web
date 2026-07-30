@@ -1,4 +1,4 @@
-import type { CaseManager, Employer, Job, JobMatch, Resident, Shelter, UserProfile } from '../types';
+import type { CaseManager, Employer, EmploymentCheckIn, EmploymentTracking, Job, JobMatch, Resident, Shelter, UserProfile } from '../types';
 
 export const mockShelters: Shelter[] = [
   {
@@ -190,5 +190,67 @@ export const mockJobMatches: JobMatch[] = [
     status: 'worker_accepted',
     score: 100,
     requestedAt: '2026-07-15T13:15:00.000Z',
+  },
+];
+
+export const mockEmploymentTrackings: EmploymentTracking[] = [
+  {
+    id: 'tracking-1',
+    matchId: 'match-2',
+    residentId: 'resident-2',
+    jobId: 'job-2',
+    shelterId: 'shelter-1',
+    caseManagerId: 'case-manager-1',
+    startedAt: '2026-07-24',
+    cadence: 'fortnightly',
+    nextFollowUpAt: '2026-07-30',
+    supportState: 'needs_support',
+    status: 'active',
+    returnToMatching: false,
+  },
+  {
+    id: 'tracking-2',
+    matchId: 'match-closed-1',
+    residentId: 'resident-1',
+    jobId: 'job-1',
+    shelterId: 'shelter-1',
+    caseManagerId: 'case-manager-1',
+    startedAt: '2026-05-01',
+    cadence: 'monthly',
+    nextFollowUpAt: '2026-06-15',
+    supportState: 'good',
+    status: 'ended',
+    endedAt: '2026-06-20',
+    endReason: 'contract_completed',
+    finalNote: 'สิ้นสุดโครงการตามกำหนดและได้รับคำแนะนำการทำงานที่ดี',
+    returnToMatching: true,
+  },
+];
+
+export const mockEmploymentCheckIns: EmploymentCheckIn[] = [
+  {
+    id: 'check-in-1',
+    employmentTrackingId: 'tracking-1',
+    checkInDate: '2026-07-29',
+    attendance: 'normal',
+    adjustment: 'needs_support',
+    participantFeedback: 'ยังต้องปรับตัวกับเวลาเริ่มงานช่วงเช้า',
+    employerFeedback: 'ทำงานดีและเรียนรู้เร็ว',
+    privateNote: 'ติดตามเรื่องการเดินทางอีกครั้ง',
+    nextFollowUpAt: '2026-07-30',
+    createdBy: 'user-shelter',
+    createdAt: '2026-07-29T10:00:00.000Z',
+  },
+  {
+    id: 'check-in-2',
+    employmentTrackingId: 'tracking-2',
+    checkInDate: '2026-06-15',
+    attendance: 'normal',
+    adjustment: 'good',
+    participantFeedback: 'พร้อมรับงานโครงการถัดไป',
+    employerFeedback: 'จบงานตามเป้าหมาย',
+    nextFollowUpAt: '2026-07-15',
+    createdBy: 'user-shelter',
+    createdAt: '2026-06-15T09:00:00.000Z',
   },
 ];

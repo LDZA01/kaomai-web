@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { BriefcaseBusiness, ChevronDown, ClipboardCheck, LayoutDashboard, LogOut, Menu, PlusCircle, Settings, UserRound, UsersRound, X } from 'lucide-react';
+import { BriefcaseBusiness, CalendarCheck2, ChevronDown, ClipboardCheck, HeartHandshake, LayoutDashboard, LogOut, Menu, PlusCircle, Settings, UserRound, UsersRound, X } from 'lucide-react';
 import { useAuthContext } from '@/components/providers/AuthProvider';
 
-const nav = { shelter:[['/shelter/dashboard','ภาพรวม',LayoutDashboard],['/shelter/residents','ผู้เข้าร่วม',UsersRound],['/shelter/matching','การจับคู่',ClipboardCheck]], employer:[['/employer/dashboard','ภาพรวม',LayoutDashboard],['/employer/create-job','ประกาศงานใหม่',PlusCircle],['/employer/matches','ผู้สมัคร',BriefcaseBusiness]] } as const;
+const nav = { shelter:[['/shelter/dashboard','ภาพรวม',LayoutDashboard],['/shelter/case-management','การดูแลรายกรณี',HeartHandshake],['/shelter/work-tracking','ติดตามการทำงาน',CalendarCheck2],['/shelter/residents','ผู้เข้าร่วม',UsersRound],['/shelter/matching','การจับคู่',ClipboardCheck]], employer:[['/employer/dashboard','ภาพรวม',LayoutDashboard],['/employer/create-job','ประกาศงานใหม่',PlusCircle],['/employer/matches','ผู้สมัคร',BriefcaseBusiness]] } as const;
 
 export function AppShell({ children, role }: { children:React.ReactNode; role:'shelter'|'employer' }) {
   const { user, loading, signOut } = useAuthContext();

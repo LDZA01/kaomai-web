@@ -89,6 +89,48 @@ export interface JobMatch {
     requestedAt: string;
 }
 
+export type EmploymentCadence = 'fortnightly' | 'monthly';
+export type EmploymentSupportState = 'good' | 'needs_support' | 'urgent';
+export type EmploymentEndReason =
+    | 'contract_completed'
+    | 'resigned'
+    | 'employer_ended'
+    | 'health_or_personal'
+    | 'lost_contact'
+    | 'other';
+
+export interface EmploymentTracking {
+    id: string;
+    matchId: string;
+    residentId: string;
+    jobId: string;
+    shelterId: string;
+    caseManagerId?: string;
+    startedAt: string;
+    cadence: EmploymentCadence;
+    nextFollowUpAt: string;
+    supportState: EmploymentSupportState;
+    status: 'active' | 'ended';
+    endedAt?: string;
+    endReason?: EmploymentEndReason;
+    finalNote?: string;
+    returnToMatching: boolean;
+}
+
+export interface EmploymentCheckIn {
+    id: string;
+    employmentTrackingId: string;
+    checkInDate: string;
+    attendance: 'normal' | 'absent' | 'late';
+    adjustment: EmploymentSupportState;
+    participantFeedback?: string;
+    employerFeedback?: string;
+    privateNote?: string;
+    nextFollowUpAt: string;
+    createdBy?: string;
+    createdAt: string;
+}
+
 export interface UserProfile {
     id: string;
     email: string;
