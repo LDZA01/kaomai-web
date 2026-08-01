@@ -1,3 +1,115 @@
 'use client';
-import { useState } from 'react'; import { useRouter } from 'next/navigation'; import { Building2, Home } from 'lucide-react'; import { useAuthContext } from '@/components/providers/AuthProvider'; import { Button } from '@/components/ui/Button'; import { Field } from '@/components/ui/Field'; import type { UserRole } from '@/types';
-export function RegisterForm(){const {signUp}=useAuthContext();const router=useRouter();const [role,setRole]=useState<UserRole>('shelter');const [busy,setBusy]=useState(false);const [error,setError]=useState('');async function submit(e:React.FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);setError('');const f=new FormData(e.currentTarget);const displayName=String(f.get('displayName'));const org=role==='shelter'?{shelterName:String(f.get('orgName')),shelterAddress:String(f.get('detail'))}:{businessName:String(f.get('orgName')),industry:String(f.get('detail'))};const r=await signUp(String(f.get('email')),String(f.get('password')),role,displayName,org);if(r.error){setError(r.error.message);setBusy(false);return}router.push(`/${role}/dashboard`)}return <form onSubmit={submit} className="grid gap-5"><fieldset><legend className="mb-2 text-sm font-bold text-slate-800">ประเภทบัญชี</legend><div className="grid grid-cols-2 gap-2">{([{v:'shelter',l:'ศูนย์พักพิง',i:Home},{v:'employer',l:'ผู้จ้างงาน',i:Building2}] as const).map(({v,l,i:Icon})=><button type="button" aria-pressed={role===v} key={v} onClick={()=>setRole(v)} className={`flex min-h-12 items-center justify-center gap-2 rounded-[10px] border font-bold ${role===v?'border-navy-900 bg-navy-50 text-navy-900':'border-slate-300 text-slate-700'}`}><Icon size={18}/>{l}</button>)}</div></fieldset><Field name="displayName" label="ชื่อผู้ประสานงาน" required/><Field name="orgName" label={role==='shelter'?'ชื่อศูนย์พักพิง':'ชื่อธุรกิจ'} required/><Field name="detail" label={role==='shelter'?'ที่อยู่':'ประเภทธุรกิจ'} required/><Field name="email" label="อีเมล" type="email" required autoComplete="email"/><Field name="password" label="รหัสผ่าน" type="password" required minLength={8} hint="อย่างน้อย 8 ตัวอักษร" autoComplete="new-password"/>{error&&<p role="alert" className="rounded-[10px] bg-red-50 p-3 text-sm font-semibold text-red-800">{error}</p>}<Button type="submit" size="lg" disabled={busy}>{busy?'กำลังสร้างบัญชี…':'สร้างบัญชี'}</Button></form>}
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Building2, Home } from 'lucide-react';
+import { useAuthContext } from '@/components/providers/AuthProvider';
+import { Button } from '@/components/ui/Button';
+import { Field } from '@/components/ui/Field';
+import type { UserRole } from '@/types';
+
+const accountTypes = [
+  { value: 'shelter', label: 'ศูนย์พักพิง', icon: Home },
+  { value: 'employer', label: 'ผู้จ้างงาน', icon: Building2 },
+] as const;
+
+export function RegisterForm() {
+  const { signUp } = useAuthContext();
+  const router = useRouter();
+  const [role, setRole] = useState<UserRole>('shelter');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusy(true);
+    setError('');
+
+    const form = new FormData(event.currentTarget);
+    const displayName = String(form.get('displayName'));
+    const organization =
+      role === 'shelter'
+        ? {
+            shelterName: String(form.get('orgName')),
+            shelterAddress: String(form.get('detail')),
+          }
+        : {
+            businessName: String(form.get('orgName')),
+            industry: String(form.get('detail')),
+          };
+
+    const result = await signUp(
+      String(form.get('email')),
+      String(form.get('password')),
+      role,
+      displayName,
+      organization,
+    );
+
+    if (result.error) {
+      setError(result.error.message);
+      setBusy(false);
+      return;
+    }
+
+    router.push(`/${role}/dashboard`);
+  }
+
+  return (
+    <form onSubmit={submit} className="grid min-w-0 gap-5">
+      <fieldset className="min-w-0">
+        <legend className="mb-2 text-sm font-bold text-slate-800">ประเภทบัญชี</legend>
+        <div className="grid min-w-0 grid-cols-[repeat(2,minmax(0,1fr))] gap-2">
+          {accountTypes.map(({ value, label, icon: Icon }) => (
+            <button
+              type="button"
+              aria-pressed={role === value}
+              key={value}
+              onClick={() => setRole(value)}
+              className={`flex min-h-12 min-w-0 items-center justify-center gap-1 rounded-[10px] border px-1 text-center font-bold ${
+                role === value
+                  ? 'border-navy-900 bg-navy-50 text-navy-900'
+                  : 'border-slate-300 text-slate-700'
+              }`}
+            >
+              <Icon className="shrink-0" size={18} />
+              <span className="min-w-0">{label}</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
+
+      <Field name="displayName" label="ชื่อผู้ประสานงาน" required />
+      <Field
+        name="orgName"
+        label={role === 'shelter' ? 'ชื่อศูนย์พักพิง' : 'ชื่อธุรกิจ'}
+        required
+      />
+      <Field
+        name="detail"
+        label={role === 'shelter' ? 'ที่อยู่' : 'ประเภทธุรกิจ'}
+        required
+      />
+      <Field name="email" label="อีเมล" type="email" required autoComplete="email" />
+      <Field
+        name="password"
+        label="รหัสผ่าน"
+        type="password"
+        required
+        minLength={8}
+        hint="อย่างน้อย 8 ตัวอักษร"
+        autoComplete="new-password"
+      />
+
+      {error && (
+        <p role="alert" className="rounded-[10px] bg-red-50 p-3 text-sm font-semibold text-red-800">
+          {error}
+        </p>
+      )}
+
+      <Button type="submit" size="lg" disabled={busy}>
+        {busy ? 'กำลังสร้างบัญชี…' : 'สร้างบัญชี'}
+      </Button>
+    </form>
+  );
+}
