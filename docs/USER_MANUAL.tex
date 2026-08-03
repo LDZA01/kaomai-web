@@ -1,0 +1,274 @@
+% !TEX program = xelatex
+% !TEX root = main.tex
+\documentclass[12pt,a4paper]{report}
+
+\usepackage{ifxetex}
+\ifxetex
+  \usepackage{fontspec}
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[T1]{fontenc}
+\fi
+\usepackage[margin=1in]{geometry}
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[section]{placeins}
+\usepackage{xcolor}
+\usepackage{ragged2e}
+\usepackage{amssymb}
+\ifxetex
+\else
+  \usepackage{microtype}
+  \microtypesetup{expansion=false}
+\fi
+
+\setstretch{1.15}
+\graphicspath{{figures/}}
+\emergencystretch=2em
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\setlength{\tabcolsep}{4pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\setlist[itemize]{leftmargin=1.4cm}
+\setlist[enumerate]{leftmargin=1.4cm}
+\sloppy
+\titleformat{\chapter}[hang]
+  {\normalfont\bfseries\Huge}
+  {\thechapter}
+  {0.8em}
+  {}
+\titleformat{\section}
+  {\normalfont\bfseries\Large}
+  {\thesection}
+  {0.8em}
+  {}
+\titleformat{\subsection}
+  {\normalfont\bfseries\large}
+  {\thesubsection}
+  {0.8em}
+  {}
+\titlespacing*{\chapter}{0pt}{-10pt}{22pt}
+\titlespacing*{\section}{0pt}{18pt}{10pt}
+\titlespacing*{\subsection}{0pt}{14pt}{8pt}
+\let\cleardoublepage\clearpage
+\renewcommand{\chaptername}{}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcommand{\codecell}[1]{{\ttfamily\small\path{#1}}}
+\newcommand{\codeinline}[1]{{\ttfamily\path{#1}}}
+\newcommand{\diagramimage}[1]{%
+    \includegraphics[width=\textwidth,height=0.78\textheight,keepaspectratio]{#1}%
+}
+
+% --- TH Sarabun New Font Setup with Automatic Fallback for Overleaf Cloud ---
+\ifxetex
+  \IfFontExistsTF{TH Sarabun New}{
+    \setmainfont{TH Sarabun New}[Scale=1.25, Script=Thai]
+    \setsansfont{TH Sarabun New}[Scale=1.25, Script=Thai]
+  }{
+    \IfFontExistsTF{Laksaman}{
+      \setmainfont{Laksaman}[Scale=1.2, Script=Thai]
+      \setsansfont{Laksaman}[Scale=1.2, Script=Thai]
+    }{
+      \setmainfont{Garuda}[Scale=1.05, Script=Thai]
+      \setsansfont{Garuda}[Scale=1.05, Script=Thai]
+    }
+  }
+  \XeTeXlinebreaklocale "th"
+  \XeTeXlinebreakskip = 0pt plus 1pt
+\fi
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    citecolor=black,
+    urlcolor=black
+}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[R]{\thepage}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    {\LARGE \textbf{คู่มือการใช้งานระบบแพลตฟอร์ม "ก้าวใหม่"} \par}
+    \vspace{0.5cm}
+    {\Large (KaoMai Platform User Manual) \par}
+    \vspace{0.3cm}
+    {\large ฉบับผู้ใช้งานจริง | ฟอนต์ TH Sarabun \par}
+    \vspace{2cm}
+    {\large \textbf{เอกสารสำหรับ} \par}
+    \vspace{0.5cm}
+    เจ้าหน้าที่ศูนย์คนไร้บ้าน, ผู้จัดการรายกรณี (CM) \\
+    และ ผู้จ้างงาน (Employer) \\
+    \vspace{1.5cm}
+    {\large \textbf{ขอบเขตการใช้งานในระบบ} \par}
+    \vspace{0.5cm}
+    การลงทะเบียนข้อมูลผู้เข้าร่วม, การจัดเก็บเอกสารประกอบ, \\
+    การจับคู่งานอัจฉริยะ, แดชบอร์ด CM และการติดตามผลช่วงทำงาน \\
+    \vfill
+    {\large
+    โครงการก้าวใหม่ (KaoMai Social Impact Initiative) \\
+    ปีการศึกษา 2569
+    }
+\end{titlepage}
+
+\pagenumbering{roman}
+
+\chapter*{คำนำ}
+\addcontentsline{toc}{chapter}{คำนำ}
+
+เอกสารฉบับนี้คือ \textbf{"คู่มือการใช้งานระบบแพลตฟอร์มก้าวใหม่ (KaoMai User Manual)"} จัดทำขึ้นเพื่อให้ผู้ใช้งาน ได้แก่ เจ้าหน้าที่ศูนย์คนไร้บ้าน, ผู้จัดการรายกรณี (Case Manager - CM), และผู้จ้างงาน สามารถเรียนรู้และเข้าใจขั้นตอนการใช้งานส่วนต่าง ๆ ของระบบได้อย่างง่ายดาย
+
+แพลตฟอร์มก้าวใหม่ถูกพัฒนาขึ้นเพื่อเป็นสื่อกลางในการเชื่อมโยงโอกาสงานระหว่างคนไร้บ้านที่พร้อมทำงานกับผู้จ้างงานที่ต้องการแรงงาน โดยมีฟังก์ชันอำนวยความสะดวกครบวงจร ตั้งแต่การบันทึกข้อมูลและเอกสารหลักฐาน การอนุมัติการจับคู่งาน ตลอดจนการติดตามผลการปรับตัวในสถานที่ทำงานอย่างเป็นระบบ
+
+ผู้จัดทำหวังเป็นอย่างยิ่งว่าคู่มือฉบับนี้จะช่วยให้ผู้ใช้งานทุกท่านสามารถใช้งานระบบได้อย่างราบรื่นและเกิดประโยชน์สูงสุด
+
+\clearpage
+\tableofcontents
+\clearpage
+\pagenumbering{arabic}
+
+\chapter{บทนำและภาพรวมการใช้งาน}
+
+\section{จุดประสงค์ของแพลตฟอร์มก้าวใหม่}
+แพลตฟอร์มก้าวใหม่ (KaoMai Web Application) ออกแบบมาเพื่อช่วยเหลือคนไร้บ้านให้เข้าถึงโอกาสงานที่สอดคล้องกับทักษะและความพร้อม โดยแบ่งบทบาทการใช้งานออกเป็น 2 กลุ่มหลัก:
+
+\begin{itemize}
+    \item \textbf{พื้นที่ศูนย์คนไร้บ้าน (Shelter Admin / Case Manager):} มีหน้าที่ดูแลข้อมูลผู้เข้าร่วม, มอบหมายผู้จัดการรายกรณี (CM), พิจารณาอนุมัติข้อเสนองานจากผู้จ้างงาน และติดตามผลการทำงานหลังได้รับการจ้างงาน
+    \item \textbf{พื้นที่ผู้จ้างงาน (Employer):} มีหน้าที่สร้างประกาศรับสมัครงาน, คัดเลือกผู้สมัครจากคะแนนความเหมาะสม (Match Score \%) และติดต่อประสานงานเริ่มงาน
+\end{itemize}
+
+\section{เมนูหลักของระบบ}
+\begin{enumerate}
+    \item \textbf{สำหรับศูนย์คนไร้บ้าน:} เมนูผู้เข้าร่วม (\codeinline{/shelter/residents}), เมนูการดูแลรายกรณี (\codeinline{/shelter/case-management}), เมนูการจับคู่ (\codeinline{/shelter/matching}) และเมนูการติดตามงาน (\codeinline{/shelter/work-tracking})
+    \item \textbf{สำหรับผู้จ้างงาน:} เมนูประกาศงานใหม่ (\codeinline{/employer/create-job}) และเมนูผู้สมัคร (\codeinline{/employer/matches})
+\end{enumerate}
+
+\chapter{คู่มือสำหรับศูนย์คนไร้บ้านและผู้จัดการรายกรณี}
+
+\section{การลงทะเบียนและจัดการข้อมูลผู้เข้าร่วม}
+\textbf{เมนู:} \texttt{ผู้เข้าร่วม} (\codeinline{/shelter/residents})
+
+เจ้าหน้าที่ศูนย์พักพิงสามารถเพิ่มและดูแลข้อมูลคนไร้บ้านในความดูแลได้ตามขั้นตอนดังนี้:
+
+\begin{enumerate}
+    \item \textbf{ขั้นตอนการเพิ่มผู้เข้าร่วมใหม่:}
+    \begin{itemize}
+        \item กดปุ่ม \textbf{"+ เพิ่มผู้เข้าร่วม"} บริเวณมุมขวาบน
+        \item \textbf{ข้อมูลพื้นฐาน:} อัปโหลดรูปถ่าย, กรอกชื่อที่ใช้แสดง, อายุ และเลือกเพศ
+        \item \textbf{โรคประจำตัว:} กรอกข้อจำกัดสุขภาพหรือโรคประจำตัว (ข้อมูลนี้จะถูกเก็บเป็นความลับเฉพาะศูนย์พักพิง และไม่แสดงแก่นายจ้าง)
+        \item \textbf{ผู้จัดการรายกรณี:} เลือกมอบหมาย Case Manager (CM) ผู้รับผิดชอบประจำเคส
+        \item \textbf{สถานะบัตรประชาชน:} เลือกสถานะ (มีบัตรประชาชน / อยู่ระหว่างดำเนินการ / ต้องการความช่วยเหลือ)
+        \item \textbf{รูปแบบงานที่ต้องการ:} เลือกระหว่าง \textbf{งานเต็มเวลา (Full-time)} หรือ \textbf{งานพาร์ทไทม์ (Part-time)}
+        \item \textbf{วิธีรับค่าจ้างที่สะดวก:} เลือก \textbf{เงินสด} หรือ \textbf{โอนเข้าบัญชีธนาคาร}
+        \item \textbf{ทักษะและเวลาที่พร้อม:} เลือกทักษะที่มี พร้อมกำหนดวันและช่วงเวลาที่สะดวกทำงาน
+    \end{itemize}
+
+    \item \textbf{ขั้นตอนการอัปโหลดเอกสารประกอบ (Supporting Documents):}
+    \begin{itemize}
+        \item ในส่วนเอกสารประกอบ กดปุ่ม \textbf{"อัปโหลดเอกสาร"}
+        \item เลือกไฟล์จากคอมพิวเตอร์ (รองรับ PDF, JPG, PNG, WebP ขนาดไม่เกิน 5 MB สูงสุด 5 ไฟล์)
+        \item เลือกประเภทเอกสาร เช่น \textit{วุฒิการศึกษา, ใบรับรองการฝึกอบรม, ประวัติการทำงาน หรือ เอกสารอื่น ๆ}
+        \item สามารถกดปุ่ม \textbf{"เปิด"} เพื่อดาวน์โหลดดูไฟล์ หรือกด \textbf{"ลบ"} เพื่อยกเลิกเอกสารเดิมได้
+    \end{itemize}
+\end{enumerate}
+
+\section{แดชบอร์ดการดูแลรายกรณี (Case Management Dashboard)}
+\textbf{เมนู:} \texttt{การดูแลรายกรณี} (\codeinline{/shelter/case-management})
+
+หน้าแดชบอร์ดนี้ช่วยให้ผู้จัดการรายกรณี (CM) และบริหารศูนย์ติดตามภาระงานได้อย่างเป็นระบบ:
+
+\begin{itemize}
+    \item \textbf{ตรวจสอบภาระงาน (Workload):} ดูสถิติจำนวนผู้เข้าร่วมที่ CM แต่ละคนกำลังดูแลอยู่
+    \item \textbf{ตรวจสอบรายชื่อตกค้าง (Unassigned):} ระบบเตือนรายชื่อผู้เข้าร่วมที่ยังไม่มี CM ดูแล เพื่อให้กดมอบหมายผู้รับผิดชอบได้ทันที
+    \item \textbf{ติดตามสถานะการประสานงาน:} ตรวจสอบผู้เข้าร่วมที่อยู่ระหว่างขั้นตอนรอคำตอบหรือรอเริ่มงาน
+\end{itemize}
+
+\section{การพิจารณาและอนุมัติการจับคู่งาน (Match Approval)}
+\textbf{เมนู:} \texttt{การจับคู่} (\codeinline{/shelter/matching})
+
+เมื่อผู้จ้างงานยื่นข้อเสนอมา รายการจะขึ้นในคิวการจับคู่:
+
+\begin{enumerate}
+    \item รายการข้อเสนอใหม่จะอยู่ในสถานะ \textbf{"ยื่นข้อเสนอแล้ว (Suggested)"}
+    \item เจ้าหน้าที่ศูนย์หรือ CM เข้าไปสอบถามความสมัครใจและความพร้อมของผู้เข้าร่วม
+    \item หากผู้เข้าร่วมพร้อมรับงาน ให้กดปุ่ม \textbf{"อนุมัติการจับคู่"} (ระบบจะเปิดเผยเบอร์โทรศัพท์ติดต่อศูนย์/CM แก่ผู้จ้างงานเพื่อเตรียมนัดหมาย)
+    \item หากผู้เข้าร่วมไม่สะดวกรับงาน ให้กดปุ่ม \textbf{"ไม่อนุมัติ / ผู้สมัครไม่สะดวก"}
+\end{enumerate}
+
+\section{ระบบติดตามการทำงานและการยุติการทำงาน (Work Tracking)}
+\textbf{เมนู:} \texttt{การติดตามงาน} (\codeinline{/shelter/work-tracking})
+
+หลังจากคนไร้บ้านเริ่มทำงานแล้ว ให้กดปุ่ม \textbf{"+ เริ่มติดตามงาน"} เพื่อเข้าสู่ระบบดูแลต่อเนื่อง:
+
+\begin{enumerate}
+    \item \textbf{การตั้งค่ารอบติดตามงาน:}
+    \begin{itemize}
+        \item \textbf{สัปดาห์แรก (1st Week):} ติดตามและบันทึกผลการทำงานรายวัน
+        \item \textbf{รอบติดตามถัดไป:} เลือกระยะเวลาเป็น \textbf{ทุก 2 สัปดาห์ (Fortnightly)} หรือ \textbf{ทุกเดือน (Monthly)} โดยระบบจะคำนวณวันนัดติดตามครั้งถัดไปให้อัตโนมัติ
+    \end{itemize}
+
+    \item \textbf{การลงบันทึกการติดตาม (Check-In):}
+    \begin{itemize}
+        \item กดปุ่ม \textbf{"บันทึกติดตาม"}
+        \item ระบุการมาทำงาน: \textit{มาทำงานปกติ / มาสาย / ขาดงาน}
+        \item ระบุระดับการปรับตัว: \textit{ปรับตัวได้ดี / ต้องการการสนับสนุน / เร่งด่วน}
+        \item กรอกความคิดเห็นจากผู้เข้าร่วม ความคิดเห็นจากนายจ้าง และบันทึกภายในสำหรับทีมศูนย์
+    \end{itemize}
+
+    \item \textbf{การยุติการทำงาน (End Employment):}
+    \begin{itemize}
+        \item เมื่อสิ้นสุดสัญญาหรือหยุดทำงาน ให้กดปุ่ม \textbf{"ยุติการทำงาน"}
+        \item เลือกเหตุผลการยุติ: \textit{สิ้นสุดสัญญาตามกำหนด / ผู้เข้าร่วมลาออก / นายจ้างยุติการจ้าง / เหตุผลสุขภาพส่วนตัว / ขาดการติดต่อ / อื่น ๆ}
+        \item กรอกสรุปโน้ตปิดเคส
+        \item หากต้องการส่งผู้เข้าร่วมกลับเข้าสู่ระบบหางานใหม่ ให้เลือกติ๊กถูกที่ \textbf{"กลับเข้าสู่กระบวนการหางาน"} เพื่อส่งรายชื่อกลับมาพร้อมรับงานใหม่อีกครั้ง
+    \end{itemize}
+\end{enumerate}
+
+\chapter{คู่มือสำหรับผู้จ้างงาน}
+
+\section{การสร้างและลงประกาศงานใหม่ (Create Job Posting)}
+\textbf{เมนู:} \texttt{ประกาศงานใหม่} (\codeinline{/employer/create-job})
+
+ผู้จ้างงานสามารถลงประกาศรับสมัครงานได้ตามขั้นตอนดังนี้:
+
+\begin{enumerate}
+    \item กรอกชื่อตำแหน่งงาน (เช่น ช่างไม้, พนักงานทำความสะอาด, จัดเรียงสินค้า)
+    \item รายละเอียดงาน สถานที่ปฏิบัติงาน และกำหนดค่าจ้างรายวัน (บาท/วัน)
+    \item เลือกทักษะที่จำเป็นสำหรับตำแหน่งงาน แล้วกด \textbf{"ลงประกาศงาน"}
+\end{enumerate}
+
+\section{การคัดเลือกผู้สมัครและการยื่นข้อเสนองาน (Smart Matching)}
+\textbf{เมนู:} \texttt{ผู้สมัคร} (\codeinline{/employer/matches})
+
+หน้าคัดเลือกผู้สมัครถูกแบ่งออกเป็นแท็บเพื่อความสะดวกในการติดตาม:
+
+\begin{enumerate}
+    \item \textbf{แท็บ "ผู้สมัครแนะนำ":}
+    \begin{itemize}
+        \item ระบบจะแสดงรายชื่อคนไร้บ้านที่ผ่านการคัดกรอง เรียงลำดับตามคะแนนความเหมาะสม (Match Score \%) และระยะทางโดยประมาณจากศูนย์พักพิง
+        \item แสดงแท็กทักษะที่ตรงกับงาน ($\checkmark$) สถานะบัตรประชาชน และรูปโปรไฟล์
+        \item กดปุ่ม \textbf{"ดูรายละเอียดโปรไฟล์"} เพื่อดูประวัติอย่างละเอียด
+        \item หากสนใจผู้สมัครคนใด ให้กดปุ่ม \textbf{"ยื่นข้อเสนองาน"} เพื่อส่งข้อเสนอไปยังศูนย์คนไร้บ้าน
+    \end{itemize}
+
+    \item \textbf{แท็บ "ยื่นเสนอแล้ว/รอตอบ":} สำหรับติดตามรายการข้อเสนองานที่อยู่ระหว่างรอศูนย์คนไร้บ้านสอบถามผู้สมัคร
+    \item \textbf{แท็บ "อนุมัติแล้ว/พร้อมเริ่มงาน":} เมื่อศูนย์คนไร้บ้านกดอนุมัติแล้ว นายจ้างจะสามารถกดดูเบอร์โทรศัพท์ติดต่อศูนย์พักพิงและ Case Manager เพื่อเตรียมนัดหมายเริ่มงานได้ทันที
+\end{enumerate}
+
+\end{document}

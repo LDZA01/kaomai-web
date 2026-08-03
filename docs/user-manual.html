@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คู่มือการใช้งานแพลตฟอร์ม "ก้าวใหม่" (KaoMai User Manual)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1E40AF;
+      --primary-light: #EFF6FF;
+      --accent: #0284C7;
+      --dark: #0F172A;
+      --gray: #64748B;
+      --light-gray: #F8FAFC;
+      --border: #E2E8F0;
+      --success: #166534;
+      --success-bg: #DCFCE7;
+      --warning: #92400E;
+      --warning-bg: #FEF3C7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Prompt', -apple-system, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: var(--light-gray);
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 3rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    /* Cover Header */
+    .header {
+      text-align: center;
+      border-bottom: 3px solid var(--primary);
+      padding-bottom: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .header h1 {
+      color: var(--primary);
+      font-size: 2.2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .header h2 {
+      font-size: 1.3rem;
+      color: var(--dark);
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .badge-bar {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .badge {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Sections */
+    section { margin-bottom: 2.5rem; }
+
+    h2.section-title {
+      font-size: 1.5rem;
+      color: var(--primary);
+      border-left: 5px solid var(--primary);
+      padding-left: 0.75rem;
+      margin-bottom: 1.25rem;
+      font-weight: 700;
+    }
+
+    h3.subsection-title {
+      font-size: 1.15rem;
+      color: var(--dark);
+      margin: 1.25rem 0 0.75rem 0;
+      font-weight: 600;
+    }
+
+    p { margin-bottom: 0.75rem; color: #334155; }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+      color: #334155;
+    }
+
+    li { margin-bottom: 0.4rem; }
+
+    /* Callout Box */
+    .callout {
+      background-color: var(--primary-light);
+      border-left: 4px solid var(--accent);
+      padding: 1.25rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+    }
+
+    .callout-title {
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.92rem;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      text-align: left;
+    }
+
+    th {
+      background-color: var(--primary-light);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    tr:nth-child(even) { background-color: #F8FAFC; }
+
+    /* Code inline */
+    code {
+      background-color: #F1F5F9;
+      color: var(--primary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+
+    /* Print styling */
+    @media print {
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; padding: 0; max-width: 100%; }
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>คู่มือการใช้งานและทดสอบระบบ</h1>
+      <h2>แพลตฟอร์ม "ก้าวใหม่" (KaoMai Web Application)</h2>
+      <p>ระบบเชื่อมโยงคนไร้บ้านกับโอกาสงานและการดูแลรายกรณีแบบครบวงจร</p>
+      <div class="badge-bar">
+        <span class="badge">เวอร์ชันระบบ: 1.0 (Branch: fixresponsive)</span>
+        <span class="badge">ฐานข้อมูล: Supabase Cloud</span>
+        <span class="badge">สำหรับ: ศูนย์คนไร้บ้าน & ผู้จ้างงาน</span>
+      </div>
+    </div>
+
+    <!-- Section 1 -->
+    <section>
+      <h2 class="section-title">1. บทนำและภาพรวมระบบ</h2>
+      <p>แพลตฟอร์ม <strong>"ก้าวใหม่" (KaoMai)</strong> พัฒนาขึ้นเพื่อเป็นสะพานเชื่อมโยงระหว่างคนไร้บ้านที่พร้อมทำงานกับผู้จ้างงานที่ต้องการแรงงาน โดยออกแบบระบบแบ่งตามบทบาทผู้ใช้งานชัดเจน 2 กลุ่ม:</p>
+      <ul>
+        <li><strong>พื้นที่ศูนย์คนไร้บ้าน (Shelter Admin / Case Manager):</strong> บันทึกข้อมูลและจัดเก็บเอกสารคนไร้บ้าน, มอบหมายผู้จัดการรายกรณี (CM), พิจารณาอนุมัติข้อเสนองาน และติดตามผลหลังเริ่มงาน</li>
+        <li><strong>พื้นที่ผู้จ้างงาน (Employer):</strong> ลงประกาศงาน, คัดเลือกผู้สมัครจากคะแนนความเหมาะสม (Match Score %) และรับเบอร์ติดต่อเพื่อเริ่มงานเมื่อได้รับการอนุมัติ</li>
+      </ul>
+    </section>
+
+    <!-- Section 2 -->
+    <section>
+      <h2 class="section-title">2. คู่มือสำหรับศูนย์คนไร้บ้านและผู้จัดการรายกรณี</h2>
+      
+      <h3 class="subsection-title">2.1 การจัดการข้อมูลผู้เข้าร่วม (Residents Manager)</h3>
+      <p><strong>เมนู:</strong> <code>ผู้เข้าร่วม</code> (<code>/shelter/residents</code>)</p>
+      <ol>
+        <li>กดปุ่ม <strong>"+ เพิ่มผู้เข้าร่วม"</strong> บริเวณมุมขวาบน</li>
+        <li><strong>ข้อมูลพื้นฐาน:</strong> อัปโหลดรูปถ่าย, กรอกชื่อที่ใช้แสดง, อายุ และเลือกเพศ</li>
+        <li><strong>โรคประจำตัว:</strong> กรอกข้อจำกัดสุขภาพ <em>(ข้อมูลนี้จะถูกเก็บเป็นความลับเฉพาะศูนย์พักพิง และไม่แสดงแก่นายจ้าง)</em></li>
+        <li><strong>สถานะบัตรประชาชน:</strong> เลือกสถานะบัตร (มีบัตรประชาชน / อยู่ระหว่างดำเนินการ / ต้องการความช่วยเหลือ)</li>
+        <li><strong>รูปแบบงานที่ต้องการ:</strong> เลือก <strong>งานเต็มเวลา (Full-time)</strong> หรือ <strong>งานพาร์ทไทม์ (Part-time)</strong></li>
+        <li><strong>วิธีรับเงินค่าจ้าง:</strong> เลือก <strong>เงินสด</strong> หรือ <strong>โอนเข้าบัญชีธนาคาร</strong></li>
+        <li><strong>ทักษะและเวลา:</strong> เลือกทักษะที่มี พร้อมระบุวันและช่วงเวลาที่พร้อมทำงาน</li>
+      </ol>
+
+      <h3 class="subsection-title">2.2 การอัปโหลดเอกสารประกอบ (Supporting Documents)</h3>
+      <ul>
+        <li>รองรับประเภทไฟล์: PDF, JPG, PNG, WebP ขนาดไม่เกิน 5 MB ต่อไฟล์ (สูงสุด 5 ไฟล์ต่อคน)</li>
+        <li>เลือกประเภทเอกสาร: วุฒิการศึกษา, ใบรับรองการฝึกอบรม, ประวัติการทำงาน, เอกสารอื่น ๆ</li>
+        <li>สามารถกดเปิดดาวน์โหลดดูไฟล์ หรือกดลบเอกสารเดิมได้</li>
+      </ul>
+
+      <h3 class="subsection-title">2.3 แดชบอร์ดการดูแลรายกรณี (Case Management Dashboard)</h3>
+      <p><strong>เมนู:</strong> <code>การดูแลรายกรณี</code> (<code>/shelter/case-management</code>)</p>
+      <ul>
+        <li>ดูสถิติภาระงานของผู้จัดการรายกรณี (Case Manager - CM) แต่ละคน</li>
+        <li>ตรวจเช็ครายชื่อที่ยังไม่ได้มอบหมายผู้จัดการ (<code>Unassigned</code>) เพื่อกดมอบหมายดูแล</li>
+      </ul>
+
+      <h3 class="subsection-title">2.4 การพิจารณาอนุมัติการจับคู่งาน (Match Approval)</h3>
+      <p><strong>เมนู:</strong> <code>การจับคู่</code> (<code>/shelter/matching</code>)</p>
+      <ol>
+        <li>ข้อเสนอใหม่จากผู้จ้างงานจะอยู่ในสถานะ <strong>"ยื่นข้อเสนอแล้ว (Suggested)"</strong></li>
+        <li>เจ้าหน้าที่ศูนย์/CM ดำเนินการสอบถามความสมัครใจของผู้เข้าร่วม</li>
+        <li>กดปุ่ม <strong>"อนุมัติการจับคู่"</strong> หากพร้อมเริ่มงาน <em>(ระบบจะเปิดเผยเบอร์โทรศัพท์ติดต่อศูนย์/CM แก่ผู้จ้างงาน)</em></li>
+        <li>กดปุ่ม <strong>"ไม่อนุมัติ / ผู้สมัครไม่สะดวก"</strong> หากผู้เข้าร่วมไม่สะดวกรับงาน</li>
+      </ol>
+
+      <h3 class="subsection-title">2.5 ระบบติดตามการทำงานและการยุติการทำงาน (Work Tracking)</h3>
+      <p><strong>เมนู:</strong> <code>การติดตามงาน</code> (<code>/shelter/work-tracking</code>)</p>
+      <ol>
+        <li>กดปุ่ม <strong>"+ เริ่มติดตามงาน"</strong> หลังเริ่มงาน</li>
+        <li><strong>สัปดาห์แรก:</strong> ติดตามบันทึกผลการทำงานรายวัน</li>
+        <li><strong>รอบติดตามถัดไป:</strong> เลือกระยะเวลาเป็น <strong>ทุก 2 สัปดาห์ (Fortnightly)</strong> หรือ <strong>ทุกเดือน (Monthly)</strong> ระบบจะคำนวณวันนัดถัดไปให้อัตโนมัติ</li>
+        <li><strong>การบันทึก Check-In:</strong> กด <strong>"บันทึกติดตาม"</strong> ระบุการมาทำงาน (ปกติ/สาย/ขาด) และการปรับตัว (ดี/ต้องการการสนับสนุน/เร่งด่วน)</li>
+        <li><strong>การยุติการทำงาน:</strong> กดปุ่ม <strong>"ยุติการทำงาน"</strong> เลือกเหตุผล กรอกสรุปปิดเคส และสามารถติ๊กเลือก <strong>"กลับเข้าสู่กระบวนการหางาน"</strong> เพื่อคืนรายชื่อพร้อมรับงานใหม่ได้ทันที</li>
+      </ol>
+
+      <div class="callout">
+        <div class="callout-title">💡 คำแนะนำสำหรับการทดสอบระบบติดตามงาน</div>
+        <p style="margin: 0;">ทดลองกดบันทึกติดตามงานหลาย ๆ ครั้งเพื่อสังเกตประวัติย้อนหลัง (History Timeline) ทางขวามือ และทดลองกด "ยุติการทำงาน" พร้อมคืนกระบวนการหางาน</p>
+      </div>
+    </section>
+
+    <!-- Section 3 -->
+    <section>
+      <h2 class="section-title">3. คู่มือสำหรับผู้จ้างงาน</h2>
+      
+      <h3 class="subsection-title">3.1 การสร้างและลงประกาศงานใหม่</h3>
+      <p><strong>เมนู:</strong> <code>ประกาศงานใหม่</code> (<code>/employer/create-job</code>)</p>
+      <p>กรอกชื่อตำแหน่งงาน รายละเอียด สถานที่ ค่าจ้างรายวัน (บาท/วัน) และเลือกทักษะที่ต้องการ แล้วกด <strong>"ลงประกาศงาน"</strong></p>
+
+      <h3 class="subsection-title">3.2 การคัดเลือกผู้สมัครและการยื่นข้อเสนอ (Smart Matching)</h3>
+      <p><strong>เมนู:</strong> <code>ผู้สมัคร</code> (<code>/employer/matches</code>)</p>
+      <ul>
+        <li><strong>แท็บ "ผู้สมัครแนะนำ":</strong> แสดงผู้สมัครเรียงตามคะแนนความเหมาะสม (Match Score %) และระยะทาง สามารถกดดูรายละเอียดโปรไฟล์ และกด <strong>"ยื่นข้อเสนองาน"</strong></li>
+        <li><strong>แท็บ "อนุมัติแล้ว/พร้อมเริ่มงาน":</strong> เมื่อศูนย์อนุมัติแล้ว ผู้จ้างงานจะสามารถกดดูเบอร์โทรศัพท์ติดต่อศูนย์/CM เพื่อเตรียมนัดหมายวันเริ่มงานได้ทันที</li>
+      </ul>
+    </section>
+
+    <!-- Section 4 -->
+    <section>
+      <h2 class="section-title">4. แบบฟอร์มการทดสอบระบบ (UAT Checklist)</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>หัวข้อการทดสอบ</th>
+            <th>ขั้นตอนการทดสอบ</th>
+            <th>ผลลัพธ์ที่คาดหวัง</th>
+            <th>ผลทดสอบ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1. บันทึกคนไร้บ้าน</td>
+            <td>เพิ่มคนไร้บ้านใหม่ + อัปโหลด PDF 1 ไฟล์</td>
+            <td>บันทึกสำเร็จ เอกสารเปิดดูได้</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+          <tr>
+            <td>2. มอบหมาย CM</td>
+            <td>เพิ่มชื่อ CM และมอบหมายให้คนไร้บ้าน</td>
+            <td>ชื่อและเบอร์ CM แสดงในโปรไฟล์</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+          <tr>
+            <td>3. สร้างประกาศงาน</td>
+            <td>ผู้จ้างงานสร้างประกาศงานใหม่</td>
+            <td>งานแสดงในระบบ Matching</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+          <tr>
+            <td>4. ยื่นข้อเสนองาน</td>
+            <td>ผู้จ้างกด "ยื่นข้อเสนองาน"</td>
+            <td>ศูนย์เห็นข้อเสนอในสถานะ Suggested</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+          <tr>
+            <td>5. อนุมัติการจับคู่</td>
+            <td>ศูนย์กด "อนุมัติการจับคู่"</td>
+            <td>ผู้จ้างเห็นเบอร์โทรติดต่อศูนย์/CM</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+          <tr>
+            <td>6. เริ่มติดตามงาน</td>
+            <td>ศูนย์กด "+ เริ่มติดตามงาน"</td>
+            <td>เคสถูกสร้างในคิวติดตามงาน</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+          <tr>
+            <td>7. บันทึก Check-In</td>
+            <td>บันทึกมาทำงานปกติ และปรับตัว "ดี"</td>
+            <td>ประวัติแสดงใน Timeline ย้อนหลัง</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+          <tr>
+            <td>8. ยุติการทำงาน</td>
+            <td>กด "ยุติการทำงาน" + ติ๊กคืนหางาน</td>
+            <td>สถานะสลับเป็น Ended และคืนรายชื่อ</td>
+            <td>[ &nbsp; ] ผ่าน</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+
+</body>
+</html>
