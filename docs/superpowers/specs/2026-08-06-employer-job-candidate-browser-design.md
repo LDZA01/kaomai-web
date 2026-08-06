@@ -9,7 +9,7 @@ The shelter matching experience remains unchanged.
 ## Navigation and route
 
 - Use `/employer/matches` as the jobs-only index so current links and bookmarks continue to work.
-- Add `/employer/matches/[jobId]` as the dedicated candidate page for one job.
+- Add `/employer/matches/job?jobId=<id>` as the dedicated candidate page for one job. The query parameter is required because this application uses Next.js static export and database job IDs are not known at build time.
 - Rename the employer sidebar item from `ผู้สมัคร` to `งานและผู้สมัคร`.
 - Change the index title to `งานและผู้สมัคร` and explain that employers open a job to review ranked candidates.
 - Keep the `ประกาศงานใหม่` action visible in the page header.
@@ -20,7 +20,7 @@ The shelter matching experience remains unchanged.
 - Each card shows the job title, location, daily wage, posting status, required skills, candidate count, highest compatibility score, and the number of offers already sent for that job.
 - Sort job cards with open jobs first, followed by draft and filled jobs, while preserving the API order within each status.
 - Do not select a job automatically and do not render candidate results below the cards.
-- The whole card is a keyboard-accessible link to `/employer/matches/[jobId]` with a clear `ดูผู้สมัคร` affordance.
+- The whole card is a keyboard-accessible link to `/employer/matches/job?jobId=<id>` with a clear `ดูผู้สมัคร` affordance.
 - Desktop uses a responsive two- or three-column card grid. Mobile uses one column without horizontal scrolling.
 - When no jobs exist, show an instructional empty state with a `ประกาศงานใหม่` action.
 
@@ -68,4 +68,4 @@ The shelter matching experience remains unchanged.
 - Unit-test job selection helpers and per-job filtering, including descending score order and isolation from matches belonging to other jobs.
 - Verify employer and shelter TypeScript paths compile.
 - Run the full test suite and production build.
-- In a real browser, verify a job card navigates to `/employer/matches/[jobId]`, direct URLs enforce ownership, rankings and tab counts belong to that job, an offer targets the route's job, browser back navigation works, mobile has no horizontal overflow, and the console has no errors.
+- In a real browser, verify a job card navigates to `/employer/matches/job?jobId=<id>`, direct URLs enforce ownership, rankings and tab counts belong to that job, an offer targets the route's job, browser back navigation works, mobile has no horizontal overflow, and the console has no errors.
