@@ -7,6 +7,7 @@
  */
 
 import { isSupabaseConfigured, supabase } from './supabase';
+import { parseStoredMinimumMatchScore } from './employer-job-browser';
 import type { CaseManager, Employer, Job, JobMatch, Resident, Shelter } from '../types';
 import {
   mockCaseManagers,
@@ -88,6 +89,8 @@ const toJob = (row: any): Job => ({
   requiredSkills: row.required_skills ?? [],
   location: row.location,
   dailyWage: Number(row.daily_wage),
+  minimumMatchScore: parseStoredMinimumMatchScore(row.minimum_match_score),
+  workType: row.work_type ?? undefined,
   status: row.status as Job['status'],
   latitude: row.latitude == null ? undefined : Number(row.latitude),
   longitude: row.longitude == null ? undefined : Number(row.longitude),
@@ -494,6 +497,8 @@ export async function createJob(job: Omit<Job, 'id'>): Promise<Job> {
       required_skills: job.requiredSkills,
       location: job.location,
       daily_wage: job.dailyWage,
+      minimum_match_score: job.minimumMatchScore,
+      work_type: job.workType ?? null,
       status: job.status,
       latitude: job.latitude ?? null,
       longitude: job.longitude ?? null,
