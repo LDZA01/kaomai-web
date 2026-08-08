@@ -57,4 +57,3 @@ Allow an employer to define the minimum compatibility score for each job. Recomm
 - Verify sent and approved matches remain visible below the threshold.
 - Run TypeScript, full tests, production build, and browser checks at desktop and 390px mobile widths.
 - Confirm the create form defaults to `50%`, job cards show the threshold, and the detail page filters recommended candidates correctly.
-

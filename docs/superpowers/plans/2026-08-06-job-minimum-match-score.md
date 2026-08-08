@@ -70,4 +70,3 @@
 - [ ] Show the threshold in the job summary and threshold-aware empty copy.
 - [ ] Keep sent and approved matches unchanged.
 - [ ] Run full tests, lint, production build, desktop/mobile browser checks, and `git diff --check`.
-

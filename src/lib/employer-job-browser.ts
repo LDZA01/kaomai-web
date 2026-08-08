@@ -42,7 +42,7 @@ export function parseMinimumMatchScore(value: unknown): MinimumMatchScore {
 }
 
 export function parseStoredMinimumMatchScore(value: unknown): MinimumMatchScore {
-  return value == null || Number(value) === 0 ? 50 : parseMinimumMatchScore(value);
+  return value == null ? 50 : parseMinimumMatchScore(value);
 }
 
 export function filterCandidatesByMinimumScore<T extends { score: number }>(

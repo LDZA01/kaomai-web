@@ -75,10 +75,10 @@ describe('employer job browser', () => {
     expect(() => parseMinimumMatchScore('60')).toThrow('คะแนนความสอดคล้องขั้นต่ำไม่ถูกต้อง');
   });
 
-  it('uses 50 percent for legacy jobs without a stored threshold', () => {
+  it('uses 50 percent only when legacy jobs do not have a stored threshold', () => {
     expect(parseStoredMinimumMatchScore(null)).toBe(50);
     expect(parseStoredMinimumMatchScore(undefined)).toBe(50);
-    expect(parseStoredMinimumMatchScore(0)).toBe(50);
+    expect(parseStoredMinimumMatchScore(0)).toBe(0);
     expect(parseStoredMinimumMatchScore(75)).toBe(75);
   });
 
