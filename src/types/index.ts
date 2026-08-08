@@ -67,6 +67,8 @@ export interface Employer {
     address?: string;
 }
 
+export type MinimumMatchScore = 0 | 25 | 50 | 75;
+
 export interface Job {
     id: string;
     title: string;
@@ -74,6 +76,8 @@ export interface Job {
     requiredSkills: string[];
     location: string;
     dailyWage: number;
+    minimumMatchScore: MinimumMatchScore;
+    workType?: PreferredWorkType;
     employerId: string;
     status: 'draft' | 'open' | 'filled';
     latitude?: number;

@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   Banknote,
+  ArrowLeft,
   BriefcaseBusiness,
   Building2,
   CalendarDays,
@@ -17,7 +18,6 @@ import {
   MapPin,
   Navigation,
   Phone,
-  PlusCircle,
   Search,
   Send,
   ShieldCheck,
@@ -41,8 +41,14 @@ import {
 } from '@/lib/db';
 import { rankResidentsForJob } from '@/lib/matching';
 import { formatDistanceThai, getApproximateDistance } from '@/lib/distance';
+import {
+  findEmployerJobById,
+  getMatchesForJob,
+  partitionCandidatesByMinimumScore,
+} from '@/lib/employer-job-browser';
 import type { Job, JobMatch, Resident, Shelter } from '@/types';
 import { Button } from '@/components/ui/Button';
+import { formatPreferredWorkType } from '@/lib/resident-intake';
 
 type State = { matches: JobMatch[]; jobs: Job[]; residents: Resident[]; shelters: Shelter[] };
 type Action = {
@@ -118,10 +124,10 @@ function MatchProgress({ status }: { status: JobMatch['status'] }) {
   );
 }
 
-export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
+export function MatchesBoard({ role, jobId }: { role: 'shelter' | 'employer'; jobId?: string }) {
   const { org } = useAuthContext();
   const [state, setState] = useState<State | null>(null);
-  const [activeTab, setActiveTab] = useState<'recommended' | 'sent' | 'approved'>('recommended');
+  const [activeTab, setActiveTab] = useState<'recommended' | 'below' | 'sent' | 'approved'>('recommended');
   const [searchQuery, setSearchQuery] = useState('');
   const [action, setAction] = useState<Action | null>(null);
   const [saving, setSaving] = useState(false);
@@ -141,21 +147,16 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
     })();
   }, [role, org]);
 
-  const activeJobs = state?.jobs ?? [];
-  const primaryJob = activeJobs[0];
+  const selectedJob = state ? findEmployerJobById(state.jobs, jobId ?? '') : undefined;
 
   // Ranked candidates for available jobs
   const ranked = useMemo(() => {
     if (!state) return [];
-    if (primaryJob) {
-      return rankResidentsForJob(primaryJob, state.residents);
+    if (selectedJob) {
+      return rankResidentsForJob(selectedJob, state.residents);
     }
-    return state.residents.map((resident) => ({
-      resident,
-      score: 85,
-      matchedSkills: resident.skills,
-    }));
-  }, [primaryJob, state]);
+    return [];
+  }, [selectedJob, state]);
 
   const expandedResident = state?.residents.find((resident) => resident.id === expandedResidentId);
   const expandedShelter = expandedResident
@@ -226,15 +227,15 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
   }
 
   function suggest(resident: Resident, score: number) {
-    if (!primaryJob) return;
+    if (!selectedJob) return;
     setAction({
       title: `ยื่นข้อเสนองานให้ ${resident.name}?`,
-      description: `ส่งตำแหน่งงาน "${primaryJob.title}" (ตรงกัน ${score}%) ไปยังศูนย์คนไร้บ้าน เพื่อให้เจ้าหน้าที่สอบถามความสมัครใจของผู้สมัคร`,
+      description: `ส่งตำแหน่งงาน "${selectedJob.title}" (ตรงกัน ${score}%) ไปยังศูนย์คนไร้บ้าน เพื่อให้เจ้าหน้าที่สอบถามความสมัครใจของผู้สมัคร`,
       confirmLabel: 'ยืนยันยื่นข้อเสนองาน',
       tone: 'primary',
       run: async () => {
         const match = await upsertMatch({
-          jobId: primaryJob.id,
+          jobId: selectedJob.id,
           residentId: resident.id,
           score,
           status: 'suggested',
@@ -252,7 +253,7 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
               }
             : current,
         );
-        setNotice(`ยื่นข้อเสนองาน "${primaryJob.title}" ให้ ${resident.name} สำเร็จแล้ว! ศูนย์คนไร้บ้านจะดำเนินการติดต่อผู้สมัคร`);
+        setNotice(`ยื่นข้อเสนองาน "${selectedJob.title}" ให้ ${resident.name} สำเร็จแล้ว! ศูนย์คนไร้บ้านจะดำเนินการติดต่อผู้สมัคร`);
       },
     });
   }
@@ -266,15 +267,31 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
       </div>
     );
 
-  const sentMatches = state.matches.filter(
+  const selectedJobMatches = getMatchesForJob(state.matches, selectedJob?.id ?? '');
+  const sentMatches = selectedJobMatches.filter(
     (m) => m.status === 'suggested' || m.status === 'worker_accepted',
   );
-  const approvedMatches = state.matches.filter((m) => m.status === 'shelter_approved');
+  const approvedMatches = selectedJobMatches.filter((m) => m.status === 'shelter_approved');
 
   // Filter candidates based on search query
-  const filteredRanked = ranked.filter(({ resident }) =>
+  const candidateGroups = selectedJob
+    ? partitionCandidatesByMinimumScore(ranked, selectedJob.minimumMatchScore)
+    : { qualified: ranked, belowThreshold: [] };
+  const visibleCandidateGroup = activeTab === 'below' ? candidateGroups.belowThreshold : candidateGroups.qualified;
+  const filteredRanked = visibleCandidateGroup.filter(({ resident }) =>
     `${resident.name} ${resident.skills.join(' ')}`.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+  if (role === 'employer' && !selectedJob) {
+    return (
+      <div className="page-enter rounded-[16px] bg-white px-6 py-14 text-center shadow-[0_3px_8px_oklch(21%_0.025_255_/_0.07)]">
+        <BriefcaseBusiness className="mx-auto text-slate-400" size={44}/>
+        <h1 className="mt-4 text-2xl font-bold text-slate-950">ไม่พบงานนี้ในบัญชีของคุณ</h1>
+        <p className="mx-auto mt-2 max-w-xl text-slate-600">งานอาจถูกลบ หรือเป็นประกาศงานของผู้จ้างงานบัญชีอื่น</p>
+        <Link href="/employer/matches" className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-[10px] bg-brand-600 px-5 font-bold text-white hover:bg-brand-700"><ArrowLeft size={18}/>กลับไปงานทั้งหมด</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="page-enter">
@@ -283,26 +300,19 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
         <div>
           <p className="mb-1 flex items-center gap-2 font-bold text-brand-600">
             <BriefcaseBusiness size={18} />
-            {role === 'employer' ? 'ระบบคัดเลือกผู้สมัคร' : 'ระบบพิจารณาจับคู่สำหรับศูนย์คนไร้บ้าน'}
+            {role === 'employer' ? 'ผู้สมัครของประกาศงาน' : 'ระบบพิจารณาจับคู่สำหรับศูนย์คนไร้บ้าน'}
           </p>
           <h1 className="text-3xl font-extrabold tracking-[-0.025em] text-slate-950">
-            {role === 'employer' ? 'รายชื่อผู้สมัครที่เหมาะสม' : 'พิจารณาอนุมัติข้อเสนองาน'}
+            {role === 'employer' ? selectedJob?.title : 'พิจารณาอนุมัติข้อเสนองาน'}
           </h1>
           <p className="mt-2 max-w-3xl text-slate-600">
             {role === 'employer'
-              ? 'รายชื่อคนไร้บ้านที่ผ่านการคัดกรองทักษะและความพร้อม สามารถกด "ยื่นข้อเสนองาน" เพื่อให้ศูนย์สอบถามความสมัครใจ'
+              ? 'ผู้สมัครที่มีทักษะและความพร้อมสอดคล้องกับงานนี้ เรียงจากคะแนนสูงสุดลงมา'
               : 'พิจารณาข้อเสนอจากผู้จ้างงาน บันทึกคำตอบจากคนไร้บ้านในดูแล และอนุมัติการจับคู่'}
           </p>
         </div>
 
-        {role === 'employer' && (
-          <Link
-            href="/employer/create-job"
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[12px] bg-brand-600 px-5 font-bold text-white shadow-[0_3px_6px_oklch(55%_0.2_260_/_0.2)] hover:bg-brand-700"
-          >
-            <PlusCircle size={18} /> ประกาศงานใหม่
-          </Link>
-        )}
+        {role === 'employer' && <Link href="/employer/matches" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[10px] border border-brand-300 bg-white px-4 font-bold text-brand-700 hover:bg-brand-50"><ArrowLeft size={18}/>กลับไปงานทั้งหมด</Link>}
       </div>
 
       {notice && (
@@ -315,6 +325,15 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
       {/* ── EMPLOYER WORKFLOW VIEW ────────────────────────────────────────────── */}
       {role === 'employer' ? (
         <div className="mt-7 space-y-6">
+          <section aria-label="ข้อมูลงาน" className="rounded-[16px] bg-white p-5 shadow-[0_3px_8px_oklch(21%_0.025_255_/_0.07)] sm:p-6">
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-slate-700"><span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-brand-600"/>{selectedJob?.location}</span><span className="inline-flex items-center gap-1.5"><Banknote size={16} className="text-opportunity-700"/>฿{selectedJob?.dailyWage.toLocaleString()}/วัน</span><span className="rounded-full bg-hope-100 px-3 py-1 text-xs font-bold text-hope-800">{selectedJob?.status === 'open' ? 'เปิดรับสมัคร' : selectedJob?.status === 'draft' ? 'ฉบับร่าง' : 'ปิดรับสมัคร'}</span></div>
+            <div className="mt-4 flex flex-wrap gap-2">{selectedJob?.requiredSkills.map((skill) => <span key={skill} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{skill}</span>)}<span className="rounded-full bg-opportunity-50 px-3 py-1 text-xs font-bold text-opportunity-800">{formatPreferredWorkType(selectedJob?.workType)}</span><span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-800">ต้องมีอย่างน้อย {selectedJob?.minimumMatchScore}%</span></div>
+            {!selectedJob?.workType && <p className="mt-4 rounded-[10px] bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">ข้อมูลประกาศงานยังไม่ครบ: กรุณาระบุว่าเป็นงานเต็มเวลาหรือพาร์ทไทม์ เพื่อให้คะแนนแม่นยำขึ้น</p>}
+          </section>
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+            <div><h2 className="text-xl font-bold text-slate-950">ผู้สมัครที่เหมาะสม</h2><p className="mt-1 text-sm text-slate-600">เรียงตามคะแนนความสอดคล้องจากมากไปน้อย</p></div>
+            <span className="mt-2 w-fit rounded-full bg-brand-100 px-3 py-1 text-xs font-bold text-brand-800 sm:mt-0">{candidateGroups.qualified.length} คนผ่านเกณฑ์</span>
+          </div>
           {/* Navigation Tabs */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-200 pb-3">
             <div className="flex flex-wrap gap-2">
@@ -328,7 +347,19 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
                 }`}
               >
                 <Sparkles size={17} />
-                ผู้สมัครแนะนำ ({filteredRanked.length})
+                ผู้สมัครแนะนำ ({candidateGroups.qualified.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('below')}
+                className={`flex min-h-11 items-center gap-2 rounded-[12px] px-4 text-sm font-bold transition ${
+                  activeTab === 'below'
+                    ? 'bg-amber-100 text-amber-900 ring-1 ring-amber-300'
+                    : 'bg-white text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <Users size={17} />
+                ต่ำกว่าเกณฑ์ ({candidateGroups.belowThreshold.length})
               </button>
               <button
                 type="button"
@@ -370,17 +401,22 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
           </div>
 
           {/* TAB 1: RECOMMENDED CANDIDATES */}
-          {activeTab === 'recommended' && (
+          {(activeTab === 'recommended' || activeTab === 'below') && (
             <div className="space-y-4">
               {filteredRanked.length === 0 ? (
                 <div className="rounded-[16px] bg-white p-12 text-center shadow-sm">
                   <Users className="mx-auto text-slate-400" size={48} />
-                  <h3 className="mt-3 text-lg font-bold text-slate-900">ไม่พบผู้สมัครที่ตรงกับคำค้นหา</h3>
-                  <p className="mt-1 text-sm text-slate-500">ลองเปลี่ยนคำค้นหา หรือสร้างประกาศงานเพิ่มเติม</p>
+                  <h3 className="mt-3 text-lg font-bold text-slate-900">{activeTab === 'recommended' ? 'ยังไม่มีผู้สมัครที่ผ่านเกณฑ์' : 'ไม่มีผู้สมัครต่ำกว่าเกณฑ์'}</h3>
+                  <p className="mt-1 text-sm text-slate-600">{activeTab === 'recommended' ? `ดูผู้สมัครทั้งหมดได้ในแท็บ “ต่ำกว่าเกณฑ์” โดยไม่มีข้อมูลสูญหาย` : 'ลองเปลี่ยนคำค้นหาเพื่อดูผู้สมัครคนอื่น'}</p>
+                  {activeTab === 'recommended' ? (
+                    <button type="button" onClick={() => setActiveTab('below')} className="mt-4 inline-flex min-h-11 items-center font-bold text-brand-700 hover:underline">ดูผู้สมัครต่ำกว่าเกณฑ์ ({candidateGroups.belowThreshold.length})</button>
+                  ) : (
+                    <Link href="/employer/matches" className="mt-4 inline-flex min-h-11 items-center font-bold text-brand-700 hover:underline">กลับไปเลือกงานอื่น</Link>
+                  )}
                 </div>
               ) : (
                 filteredRanked.map(({ resident, score, matchedSkills }) => {
-                  const match = state.matches.find((m) => m.residentId === resident.id);
+                  const match = selectedJobMatches.find((m) => m.residentId === resident.id);
                   const isApproved = match?.status === 'shelter_approved';
                   const shelter = state.shelters.find((s) => s.id === resident.shelterId);
 
@@ -427,7 +463,7 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
                                   ? ` (${resident.availableFrom}–${resident.availableTo} น.)`
                                   : ''}
                               </span>
-                              {primaryJob && <span className="flex items-center gap-1.5 font-semibold text-brand-700"><Navigation size={15}/><span>ระยะทางโดยประมาณจากศูนย์พักพิง:</span> {distanceLabel(resident, primaryJob)}</span>}
+                              {selectedJob && <span className="flex items-center gap-1.5 font-semibold text-brand-700"><Navigation size={15}/><span>ระยะทางโดยประมาณจากศูนย์พักพิง:</span> {distanceLabel(resident, selectedJob)}</span>}
                             </div>
 
                             {/* Skills Tags */}
@@ -465,7 +501,11 @@ export function MatchesBoard({ role }: { role: 'shelter' | 'employer' }) {
                             <Eye size={16} /> ดูรายละเอียดโปรไฟล์
                           </Button>
 
-                          {!match ? (
+                          {!match && activeTab === 'below' ? (
+                            <div className="max-w-48 rounded-[10px] bg-amber-50 px-3 py-2 text-center text-xs font-bold text-amber-900">
+                              คะแนนยังไม่ถึง {selectedJob?.minimumMatchScore}%
+                            </div>
+                          ) : !match ? (
                             <Button size="md" onClick={() => suggest(resident, score)}>
                               <Send size={16} /> ยื่นข้อเสนองาน
                             </Button>

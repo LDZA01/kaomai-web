@@ -1,1 +1,5 @@
-import { MatchesBoard } from '@/components/platform/MatchesBoard'; export default function Page(){return <MatchesBoard role="employer"/>}
+import { EmployerJobsIndex } from '@/components/platform/EmployerJobsIndex';
+
+export default function Page() {
+  return <EmployerJobsIndex />;
+}
